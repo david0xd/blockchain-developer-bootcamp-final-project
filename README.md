@@ -39,9 +39,10 @@ The blockchain approach proposes a creation of an application that will handle t
 3. User is able to upload the document and get information about the signatures (verification process).
 
 More things to consider on the way:
-* User add and lock their personal identity information later used for signing.
-* User send and allow another party to review, verify and approve the personal identity information provided by the user.
+* User can add and lock their personal identity information, later used for signing.
+* User can send/share and allow another party to review, verify and approve the personal identity information provided by the user (party cooperation agreement).
 * User can verify the hash of the personal information attached to the signature in order to trust the party's signing activity.
+* Only allowed parties can have the personal information of another party.
 
 ## Identified entities:
  - Document (hash, timestamp, added by related information, description, name)
