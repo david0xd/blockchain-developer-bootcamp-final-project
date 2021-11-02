@@ -9,6 +9,8 @@ contract DocumentSigner {
         string documentHash;
         string name;
         string description;
+        address owner;
+        uint256 createdAt;
     }
 
     struct Signatory {
@@ -43,14 +45,26 @@ contract DocumentSigner {
         _;
     }
 
+    modifier documentDoesNotExist(string documentHash) {
+        require(documents[documentHash].createdAt == 0, "Document has been already added.");
+        _;
+    }
+
     /**
     * Add new document hash to the smart contract storage.
     *
     * returns bool
     */
-    function addDocumentHash() external onlyOwner returns (bool) {
-        // TODO: Add (register) document hash on the blockchain.
-        return true;
+    function addDocument(string documentHash, string name, string description) external
+    documentDoesNotExist(documentHash) returns (bool) {
+        documents[documentHash] = Document({
+            documentHash: documentHash,
+            name: name,
+            description: description,
+            owner: msg.sender,
+            createdAt: block.timestamp
+        });
+        return documents[documentHash];
     }
 
     /**
