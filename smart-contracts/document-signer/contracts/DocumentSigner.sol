@@ -22,9 +22,9 @@ contract DocumentSigner {
     }
 
     struct Signature {
-        Signatory signatory;
-        string description;
-        uint256 createdAt;
+        address signatoryAddress;
+        string note;
+        uint256 signedAt;
     }
 
     /* Fully privileged smart contract owner */
@@ -64,6 +64,14 @@ contract DocumentSigner {
     */
     modifier documentExist(string documentHash) {
         require(documents[documentHash].createdAt != 0, "Document does not exist.");
+        _;
+    }
+
+    /**
+    * Require that document exist.
+    */
+    modifier signatoryExist(string documentHash) {
+        // TODO: Check if signatory is allowed to sign a document
         _;
     }
 
@@ -116,8 +124,14 @@ contract DocumentSigner {
     /**
     * Add signature to the document specified by a document hash.
     */
-    function signDocument(string documentHash, address signatory) external returns (bool) {
-        // TODO: Add document signing logic
+    function signDocument(string documentHash, string note)
+    external documentExist(documentHash) signatoryExist(documentHash) returns (bool) {
+        documents[documentHash].signatures[msg.sender] = Signature({
+            signatoryAddress: msg.sender,
+            note: note,
+            signedAt: block.timestamp
+        });
+
         return true;
     }
 
@@ -126,16 +140,33 @@ contract DocumentSigner {
     *
     * returns Document
     */
-    function getDocument(string documentHash) {
+    function getDocument(string documentHash) external view documentExist returns (Document) {
         return documents[documentHash];
     }
 
     /**
-    * Get signatories information.
+    * Get signatories added to the document.
     *
     * returns Signatory[]
     */
-    function getSignatories(string documentHash) {
-        // TODO: Return document signatories
+    function getSignatories(string documentHash) external view documentExist(documentHash) returns (Signatory []) {
+        return documents[documentHash].signatories;
+    }
+
+    /**
+    * Get document signatures.
+    *
+    * returns Signature[]
+    */
+    function getSignatures(string documentHash) external view documentExist(documentHash) returns (Signature []) {
+        uint256 memory totalSignatories = documents[documentHash].signatories.length;
+        Signature [] memory signatures = new Signature[](totalSignatories);
+        for (uint i = 0; i < totalSignatories; i++) {
+            signatures[i] = documents[documentHash].signatures[
+                documents[documentHash].signatories[i].signatoryAddress
+            ];
+        }
+
+        return signatures;
     }
 }
