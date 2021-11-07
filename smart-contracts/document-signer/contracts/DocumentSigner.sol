@@ -10,8 +10,8 @@ contract DocumentSigner {
         string name;
         string description;
         address owner;
-        uint256 createdAt;
         Signatory [] signatories;
+        mapping (address => bool) addedSignatories;
         mapping (address => Signature) signatures;
     }
 
@@ -27,58 +27,44 @@ contract DocumentSigner {
         uint256 signedAt;
     }
 
-    /* Fully privileged smart contract owner */
-    address public owner;
     /* Documents mapped by hash */
     mapping (string => Document) public documents;
-
-    constructor (){
-        owner = msg.sender;
-    }
 
     /**
     * Events
     */
     event DocumentAdded(string indexed documentHash);
-    event SignatoryAdded(address indexed signatoryAddress, string documentHash);
-    event DocumentSigned(address indexed signatoryAddress, string documentHash);
-
-    /**
-    * Modifiers
-    */
-    modifier onlyOwner() {
-        require(msg.sender == owner);
-        _;
-    }
+    event SignatoryAdded(string documentHash, address indexed signatoryAddress);
+    event DocumentSigned(string documentHash, address indexed signatoryAddress);
 
     /**
     * Require that document does not exist.
     */
-    modifier documentDoesNotExist(string documentHash) {
-        require(documents[documentHash].createdAt == 0, "Document has been already added.");
+    modifier documentDoesNotExist(string memory documentHash) {
+        require(documents[documentHash].owner == address(0), "Document has been already added.");
         _;
     }
 
     /**
     * Require that document exist.
     */
-    modifier documentExist(string documentHash) {
-        require(documents[documentHash].createdAt != 0, "Document does not exist.");
+    modifier documentExist(string memory documentHash) {
+        require(documents[documentHash].owner != address(0), "Document does not exist.");
         _;
     }
 
     /**
     * Require that document exist.
     */
-    modifier signatoryExist(string documentHash) {
-        // TODO: Check if signatory is allowed to sign a document
+    modifier signatoryExist(string memory documentHash, address signatoryAddress) {
+        require(documents[documentHash].addedSignatories[signatoryAddress] == true);
         _;
     }
 
     /**
     * Require that call comes from document owner.
     */
-    modifier onlyDocumentOwner(string documentHash) {
+    modifier onlyDocumentOwner(string memory documentHash) {
         require(
             documents[documentHash].owner == msg.sender,
             "Only owner is allowed to perform this kind of action over document.");
@@ -90,16 +76,16 @@ contract DocumentSigner {
     *
     * returns bool
     */
-    function addDocument(string documentHash, string name, string description) external
+    function addDocument(string calldata documentHash, string calldata name, string calldata description) external
     documentDoesNotExist(documentHash) returns (bool) {
-        documents[documentHash] = Document({
-            documentHash: documentHash,
-            name: name,
-            description: description,
-            owner: msg.sender,
-            createdAt: block.timestamp
-        });
-        return documents[documentHash];
+        documents[documentHash].documentHash = documentHash;
+        documents[documentHash].name = name;
+        documents[documentHash].description = description;
+        documents[documentHash].owner = msg.sender;
+
+        emit DocumentAdded(documentHash);
+
+        return true;
     }
 
     /**
@@ -108,7 +94,7 @@ contract DocumentSigner {
     *
     * returns bool
     */
-    function addSignatory(string documentHash, address signatoryAddress, string firstName, string lastName)
+    function addSignatory(string calldata documentHash, address signatoryAddress, string calldata firstName, string calldata lastName)
     external documentExist(documentHash) onlyDocumentOwner(documentHash) returns (bool) {
         documents[documentHash].signatories.push(
             Signatory({
@@ -117,6 +103,7 @@ contract DocumentSigner {
                 signatoryAddress: signatoryAddress
             })
         );
+        documents[documentHash].addedSignatories[signatoryAddress] = true;
 
         return true;
     }
@@ -124,49 +111,43 @@ contract DocumentSigner {
     /**
     * Add signature to the document specified by a document hash.
     */
-    function signDocument(string documentHash, string note)
-    external documentExist(documentHash) signatoryExist(documentHash) returns (bool) {
+    function signDocument(string calldata documentHash, string calldata note)
+    external documentExist(documentHash) signatoryExist(documentHash, msg.sender) returns (bool) {
         documents[documentHash].signatures[msg.sender] = Signature({
             signatoryAddress: msg.sender,
             note: note,
             signedAt: block.timestamp
         });
 
+        emit DocumentSigned(documentHash, msg.sender);
+
         return true;
     }
 
-    /**
-    * Get document information.
-    *
-    * returns Document
-    */
-    function getDocument(string documentHash) external view documentExist returns (Document) {
-        return documents[documentHash];
-    }
+    /**As you’ll see, the compiler complains However, if you’ve been coding in Solidity for a while, you might notice that the following works perfectly well:about both functions, getBryn and getPerson:
 
-    /**
     * Get signatories added to the document.
     *
     * returns Signatory[]
     */
-    function getSignatories(string documentHash) external view documentExist(documentHash) returns (Signatory []) {
-        return documents[documentHash].signatories;
-    }
+//    function getSignatories(string calldata documentHash) external view documentExist(documentHash) returns (Signatory [] memory) {
+//        return documents[documentHash].signatories;
+//    }
 
     /**
     * Get document signatures.
     *
     * returns Signature[]
     */
-    function getSignatures(string documentHash) external view documentExist(documentHash) returns (Signature []) {
-        uint256 memory totalSignatories = documents[documentHash].signatories.length;
-        Signature [] memory signatures = new Signature[](totalSignatories);
-        for (uint i = 0; i < totalSignatories; i++) {
-            signatures[i] = documents[documentHash].signatures[
-                documents[documentHash].signatories[i].signatoryAddress
-            ];
-        }
-
-        return signatures;
-    }
+//    function getSignatures(string calldata documentHash) external view documentExist(documentHash) returns (Signature [] memory) {
+//        uint256 totalSignatories = documents[documentHash].signatories.length;
+//        Signature [] memory signatures = new Signature[](totalSignatories);
+//        for (uint i = 0; i < totalSignatories; i++) {
+//            signatures[i] = documents[documentHash].signatures[
+//                documents[documentHash].signatories[i].signatoryAddress
+//            ];
+//        }
+//
+//        return signatures;
+//    }
 }
