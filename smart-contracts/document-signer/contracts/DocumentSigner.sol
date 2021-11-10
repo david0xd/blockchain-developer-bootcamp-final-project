@@ -12,19 +12,13 @@ contract DocumentSigner {
         address owner;
         Signatory [] signatories;
         mapping (address => bool) addedSignatories;
-        mapping (address => Signature) signatures;
+        mapping (address => bool) signatures;
     }
 
     struct Signatory {
-        string firstName;
-        string lastName;
+        string fullName;
+        string description;
         address signatoryAddress;
-    }
-
-    struct Signature {
-        address signatoryAddress;
-        string note;
-        uint256 signedAt;
     }
 
     /* Documents mapped by hash */
@@ -57,7 +51,10 @@ contract DocumentSigner {
     * Require that document exist.
     */
     modifier signatoryExist(string memory documentHash, address signatoryAddress) {
-        require(documents[documentHash].addedSignatories[signatoryAddress] == true);
+        require(
+            documents[documentHash].addedSignatories[signatoryAddress] == true,
+            "Signatory is now allowed to sign specified document."
+        );
         _;
     }
 
@@ -94,16 +91,17 @@ contract DocumentSigner {
     *
     * returns bool
     */
-    function addSignatory(string calldata documentHash, address signatoryAddress, string calldata firstName, string calldata lastName)
+    function addSignatory(string calldata documentHash, address signatoryAddress, string calldata fullName, string calldata description)
     external documentExist(documentHash) onlyDocumentOwner(documentHash) returns (bool) {
         documents[documentHash].signatories.push(
             Signatory({
-                firstName: firstName,
-                lastName: lastName,
+                fullName: fullName,
+                description: description,
                 signatoryAddress: signatoryAddress
             })
         );
         documents[documentHash].addedSignatories[signatoryAddress] = true;
+        emit SignatoryAdded(documentHash, signatoryAddress);
 
         return true;
     }
@@ -111,43 +109,71 @@ contract DocumentSigner {
     /**
     * Add signature to the document specified by a document hash.
     */
-    function signDocument(string calldata documentHash, string calldata note)
+    function signDocument(string calldata documentHash)
     external documentExist(documentHash) signatoryExist(documentHash, msg.sender) returns (bool) {
-        documents[documentHash].signatures[msg.sender] = Signature({
-            signatoryAddress: msg.sender,
-            note: note,
-            signedAt: block.timestamp
-        });
-
+        documents[documentHash].signatures[msg.sender] = true;
         emit DocumentSigned(documentHash, msg.sender);
 
         return true;
     }
 
-    /**As you’ll see, the compiler complains However, if you’ve been coding in Solidity for a while, you might notice that the following works perfectly well:about both functions, getBryn and getPerson:
-
+    /**
     * Get signatories added to the document.
     *
-    * returns Signatory[]
+    * returns address []
     */
-//    function getSignatories(string calldata documentHash) external view documentExist(documentHash) returns (Signatory [] memory) {
-//        return documents[documentHash].signatories;
-//    }
+    function getSignatories(string memory documentHash) public view documentExist(documentHash)
+    returns (address [] memory) {
+        Signatory [] memory signatories = documents[documentHash].signatories;
+        address [] memory addresses = new address [] (signatories.length);
+
+        for (uint i = 0; i < signatories.length; i++) {
+            Signatory memory signatory = signatories[i];
+            addresses[i] = signatory.signatoryAddress;
+        }
+
+        return (addresses);
+    }
 
     /**
-    * Get document signatures.
+    * Get signatory information.
     *
-    * returns Signature[]
+    * returns (string [] fullNames, string [] description)
     */
-//    function getSignatures(string calldata documentHash) external view documentExist(documentHash) returns (Signature [] memory) {
-//        uint256 totalSignatories = documents[documentHash].signatories.length;
-//        Signature [] memory signatures = new Signature[](totalSignatories);
-//        for (uint i = 0; i < totalSignatories; i++) {
-//            signatures[i] = documents[documentHash].signatures[
-//                documents[documentHash].signatories[i].signatoryAddress
-//            ];
-//        }
-//
-//        return signatures;
-//    }
+    function getSignatoryInformation(string memory documentHash, address signatoryAddress)
+    public view documentExist(documentHash) signatoryExist(documentHash, signatoryAddress)
+    returns (string memory, string memory) {
+        Signatory [] memory signatories = documents[documentHash].signatories;
+
+        string memory signatoryFullName;
+        string memory signatoryDescription;
+
+        for (uint i = 0; i < signatories.length; i++) {
+            Signatory memory signatory = signatories[i];
+            if (signatory.signatoryAddress == signatoryAddress) {
+                signatoryFullName = signatory.fullName;
+                signatoryDescription = signatory.description;
+            }
+        }
+
+        return (signatoryFullName, signatoryDescription);
+    }
+
+    /**
+    * Get document signatures in form of addresses of the signatories who signed the specified document.
+    *
+    * returns address []
+    */
+    function getSignatures(string calldata documentHash) external view documentExist(documentHash) returns (address [] memory) {
+        uint256 totalSignatories = documents[documentHash].signatories.length;
+        address [] memory signatures = new address[](totalSignatories);
+        for (uint i = 0; i < totalSignatories; i++) {
+            Signatory memory signatory = documents[documentHash].signatories[i];
+            if (documents[documentHash].signatures[signatory.signatoryAddress] == true) {
+                signatures[i] = signatory.signatoryAddress;
+            }
+        }
+
+        return signatures;
+    }
 }
