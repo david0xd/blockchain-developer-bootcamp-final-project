@@ -91,8 +91,12 @@ contract DocumentSigner {
     *
     * returns bool
     */
-    function addSignatory(string calldata documentHash, address signatoryAddress, string calldata fullName, string calldata description)
-    external documentExist(documentHash) onlyDocumentOwner(documentHash) returns (bool) {
+    function addSignatory(
+        string calldata documentHash,
+        address signatoryAddress,
+        string calldata fullName,
+        string calldata description
+    ) external documentExist(documentHash) onlyDocumentOwner(documentHash) returns (bool) {
         documents[documentHash].signatories.push(
             Signatory({
                 fullName: fullName,
