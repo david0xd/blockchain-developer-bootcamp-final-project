@@ -1,5 +1,7 @@
 let DocumentSigner = artifacts.require("DocumentSigner")
 
+const errorString = "VM Exception while processing transaction: ";
+
 contract("DocumentSigner", function (accounts) {
     const [_owner, alice, bob, chris] = accounts
     const emptyAddress = "0x0000000000000000000000000000000000000000"
@@ -319,5 +321,76 @@ contract("DocumentSigner", function (accounts) {
             })
         })
 
+    })
+
+    describe('Negative use cases', () => {
+        it('should return an error when adding a document hash that already exists', async () => {
+            await instance.addDocument(
+                document.documentHash,
+                document.name,
+                document.description,
+                { from: alice }
+            )
+
+            try {
+                await instance.addDocument(
+                    document.documentHash,
+                    document.name,
+                    document.description,
+                    { from: alice }
+                )
+                assert.equal(false, 'Action did not throw expected error.')
+            } catch (error) {
+                assert(true, !!error)
+            }
+        })
+
+        it('should return an error when adding a signatory if it is not called by a document owner', async () => {
+            await instance.addDocument(
+                document.documentHash,
+                document.name,
+                document.description,
+                { from: alice }
+            )
+
+            try {
+                await instance.addSignatory(
+                    document.documentHash,
+                    signatoryBob.signatoryAddress,
+                    signatoryBob.fullName,
+                    signatoryBob.description,
+                    { from: bob }
+                )
+                assert.equal(false, 'Action did not throw expected error.')
+            } catch (error) {
+                assert(true, !!error)
+            }
+        })
+
+        it('should return an error when try to sign a document that does not exist', async () => {
+            try {
+                const documentHash = 'non-existing-hash'
+                await instance.signDocument(documentHash, { from: bob })
+                assert.equal(false, 'Action did not throw expected error.')
+            } catch (error) {
+                assert(true, !!error)
+            }
+        })
+
+        it('should return an error when user try to sign a document that was not added to', async () => {
+            await instance.addDocument(
+                document.documentHash,
+                document.name,
+                document.description,
+                { from: alice }
+            )
+
+            try {
+                await instance.signDocument(document.documentHash, { from: bob })
+                assert.equal(false, 'Action did not throw expected error.')
+            } catch (error) {
+                assert(true, !!error)
+            }
+        })
     })
 })
