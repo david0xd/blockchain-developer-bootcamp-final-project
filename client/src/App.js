@@ -6,6 +6,10 @@ import "./App.css";
 import {Container, Nav} from "react-bootstrap";
 import { DocumentSignerService } from "./util/DocumentSignerService";
 import { AddDocumentByHash } from "./components/AddDocumentByHash";
+import {ManageDocument} from "./components/ManageDocument";
+import {SignDocument} from "./components/SignDocument";
+import {GetDocument} from "./components/GetDocument";
+import {About} from "./components/About";
 
 const contractAddress = '0x033A00c2a9f801818099d3bd87B8432055E5F499';
 
@@ -115,6 +119,18 @@ class App extends Component {
           <div className="d-flex justify-content-center align-content-center align-items-center flex-column pb-4">
             {this.state.currentPage === 'addDocument' ?
               <AddDocumentByHash data={{documentSignerService: this.state.documentSignerService}}/> : null
+            }
+            {this.state.currentPage === 'manageDocument' ?
+                <ManageDocument data={{documentSignerService: this.state.documentSignerService}}/> : null
+            }
+            {this.state.currentPage === 'signDocument' ?
+                <SignDocument data={{documentSignerService: this.state.documentSignerService}}/> : null
+            }
+            {this.state.currentPage === 'getDocument' ?
+                <GetDocument data={{documentSignerService: this.state.documentSignerService}}/> : null
+            }
+            {this.state.currentPage === 'about' ?
+                <About data={{documentSignerService: this.state.documentSignerService}}/> : null
             }
           </div>
         </Container>
