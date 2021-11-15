@@ -12,10 +12,14 @@ export class DocumentSignerService {
     }
 
     async addDocument(documentHash, documentName, documentDescription) {
-        await this.contract.methods.addDocument(
+        return await this.contract.methods.addDocument(
             documentHash,
             documentName,
             documentDescription
         ).send({ from: this.accounts[0] });
+    }
+
+    async getDocument(documentHash) {
+        return await this.contract.methods.documents(documentHash).call();
     }
 }

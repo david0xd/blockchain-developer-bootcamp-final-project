@@ -55,3 +55,8 @@ h1, h2, h3, h4, h5, h6, p, label {
   color: #86B049;
   text-decoration: underline;
 }
+
+.document-hash-input {
+  width: 590px;
+  text-align: center;
+}
