@@ -26,7 +26,11 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6, p, label {
-  color: #DFF5CE;
+  color: #fff;
+}
+
+.dark-color {
+  color: #86B049;
 }
 
 .text-custom-info {
@@ -35,4 +39,19 @@ h1, h2, h3, h4, h5, h6, p, label {
 
 .btn-success {
   background: #86B049;
+}
+
+.logo { max-width: 330px; }
+
+.nav-link {
+  color: #fff;
+}
+
+.nav-link:focus, .nav-link:hover {
+  color: #86B049;
+}
+
+.nav-active {
+  color: #86B049;
+  text-decoration: underline;
 }

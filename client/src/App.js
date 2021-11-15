@@ -3,18 +3,20 @@ import DocumentSignerContract from "./contracts/DocumentSigner.json";
 import getWeb3 from "./getWeb3";
 
 import "./App.css";
-import { Container } from "react-bootstrap";
+import {Container, Nav} from "react-bootstrap";
 import { DocumentSignerService } from "./util/DocumentSignerService";
 import { AddDocumentByHash } from "./components/AddDocumentByHash";
 
 const contractAddress = '0x033A00c2a9f801818099d3bd87B8432055E5F499';
 
 class App extends Component {
+  pages = null;
   state = {
     web3: null,
     accounts: null,
     contract: null,
     documentSignerService: null,
+    currentPage: 'addDocument'
   };
 
   documentSignerService = null;
@@ -22,6 +24,14 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.handleChange = this.handleChange.bind(this);
+    this.handleNavChange = this.handleNavChange.bind(this);
+    this.pages = {
+      addDocument: React.createRef(),
+      manageDocument: React.createRef(),
+      signDocument: React.createRef(),
+      getDocument: React.createRef(),
+      about: React.createRef()
+    }
   }
 
   componentDidMount = async () => {
@@ -57,6 +67,16 @@ class App extends Component {
     this.setState({ [e.target.name]: e.target.value });
   }
 
+  handleNavChange(e) {
+    this.pages.addDocument.current.className = 'nav-link';
+    this.pages.manageDocument.current.className = 'nav-link';
+    this.pages.signDocument.current.className = 'nav-link';
+    this.pages.getDocument.current.className = 'nav-link';
+    this.pages.about.current.className = 'nav-link';
+    e.target.className = 'nav-link nav-active';
+    this.setState({ currentPage: e.target.name });
+  }
+
   render() {
     if (!this.state.web3) {
       return <div>Loading Web3, accounts, and contract...</div>;
@@ -64,8 +84,38 @@ class App extends Component {
     return (
       <div className="App">
         <Container fluid>
-          <div className="d-flex justify-content-center align-content-center align-items-center flex-column">
-            <AddDocumentByHash data={{documentSignerService: this.state.documentSignerService}}/>
+          <img src="logo.png" alt="Logo" className="logo mt-4 mb-2" />
+          <Nav className="justify-content-center mt-3 mb-3 text-light">
+            <Nav.Item>
+              <Nav.Link onClick={this.handleNavChange} ref={this.pages.addDocument} name="addDocument" className="nav-active">
+                Add Document
+              </Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link onClick={this.handleNavChange} ref={this.pages.manageDocument} name="manageDocument">
+                Manage Document
+              </Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link onClick={this.handleNavChange} ref={this.pages.signDocument} name="signDocument">
+                Sign Document
+              </Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link onClick={this.handleNavChange} ref={this.pages.getDocument} name="getDocument">
+                Document Information
+              </Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link onClick={this.handleNavChange} ref={this.pages.about} name="about">
+                About
+              </Nav.Link>
+            </Nav.Item>
+          </Nav>
+          <div className="d-flex justify-content-center align-content-center align-items-center flex-column pb-4">
+            {this.state.currentPage === 'addDocument' ?
+              <AddDocumentByHash data={{documentSignerService: this.state.documentSignerService}}/> : null
+            }
           </div>
         </Container>
       </div>
