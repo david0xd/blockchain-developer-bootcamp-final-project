@@ -1,11 +1,12 @@
 import React, { Component } from "react";
-import { Alert } from "react-bootstrap";
+import { Alert, Button, Form } from "react-bootstrap";
 
 export class ManageDocument extends Component {
     state = {
         documentHash: '',
-        documentName: '',
-        documentDescription: '',
+        signatoryAddress: '',
+        signatoryName: '',
+        signatoryDescription: '',
         documentActionSuccessful: false,
         showError: false,
         errorMessage: '',
@@ -23,7 +24,38 @@ export class ManageDocument extends Component {
     }
 
     addSignatory = async (e) => {
-        // TODO: Implement method to add signatory to the specified document
+        e.preventDefault();
+        this.setState({
+            showError: false
+        })
+
+        try {
+            await this.documentSignerService.addSignatory(
+                this.state.documentHash,
+                this.state.signatoryAddress,
+                this.state.signatoryName,
+                this.state.signatoryDescription
+            );
+            this.setState({
+                signatoryAddress: '',
+                signatoryName: '',
+                signatoryDescription: '',
+                documentActionSuccessful: true
+            })
+
+            setInterval(() => {
+                this.setState({
+                    documentAdded: false
+                })
+            }, 3000)
+        } catch (error) {
+            console.log(error);
+            const errorMessage = error.message;
+            this.setState({
+                showError: true,
+                errorMessage: errorMessage
+            })
+        }
     }
 
     render() {
@@ -40,7 +72,49 @@ export class ManageDocument extends Component {
                         <p>{this.state.errorMessage}</p>
                     </Alert>) : null
                 }
-                <h2>Manage document here...</h2>
+                <Form className="mt-2">
+                    <Form.Group className="mb-3" controlId="formDocumentHash">
+                        <Form.Label>Document hash</Form.Label>
+                        <Form.Control type="text"
+                                      placeholder="Paste your document hash here"
+                                      name="documentHash"
+                                      value={this.state.documentHash}
+                                      onChange={this.handleChange}
+                                      className="document-hash-input"
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3" controlId="formSignatoryAddress">
+                        <Form.Label>Signatory address</Form.Label>
+                        <Form.Control type="text"
+                                      placeholder="Paste signatory address here"
+                                      name="signatoryAddress"
+                                      value={this.state.signatoryAddress}
+                                      onChange={this.handleChange}
+                                      className="document-hash-input"
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3" controlId="formSignatoryName">
+                        <Form.Label>Signatory name</Form.Label>
+                        <Form.Control type="text"
+                                      placeholder="Enter signatory full name"
+                                      name="signatoryName"
+                                      value={this.state.signatoryName}
+                                      onChange={this.handleChange}
+                                      className="document-hash-input"
+                        />
+                    </Form.Group>
+                    <Form.Group className="mb-3" controlId="formSignatoryDescription">
+                        <Form.Label>Signatory description</Form.Label>
+                        <Form.Control type="text"
+                                      placeholder="Enter signatory description or signing reason"
+                                      name="signatoryDescription"
+                                      value={this.state.signatoryDescription}
+                                      onChange={this.handleChange}
+                                      className="document-hash-input"
+                        />
+                    </Form.Group>
+                    <Button variant="success" type="button" onClick={this.addSignatory}>Add Signatory</Button>
+                </Form>
             </div>
         );
     }

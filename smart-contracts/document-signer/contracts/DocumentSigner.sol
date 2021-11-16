@@ -97,6 +97,7 @@ contract DocumentSigner {
         string calldata fullName,
         string calldata description
     ) external documentExist(documentHash) onlyDocumentOwner(documentHash) returns (bool) {
+        //TODO: Check if Signatory already exists, if does then revert
         documents[documentHash].signatories.push(
             Signatory({
                 fullName: fullName,

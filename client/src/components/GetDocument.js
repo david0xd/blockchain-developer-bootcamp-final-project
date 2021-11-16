@@ -7,7 +7,9 @@ export class GetDocument extends Component {
         documentName: '',
         documentDescription: '',
         documentOwner: '',
+        documentSignatories: [],
         documentRetrieved: false,
+        signatoriesRetrieved: false,
         showError: false,
         errorMessage: '',
     };
@@ -28,7 +30,6 @@ export class GetDocument extends Component {
 
     getDocument = async (e) => {
         e.preventDefault();
-        // TODO: Implement method to get document information
         const document = await this.documentSignerService.getDocument(this.state.documentHash);
 
         this.setState({
@@ -37,7 +38,18 @@ export class GetDocument extends Component {
             documentOwner: document.owner,
             documentRetrieved: true
         })
-        console.log(document);
+
+        const signatories = await this.documentSignerService.getSignatories(this.state.documentHash);
+        this.setState({
+            signatoriesRetrieved: true,
+            documentSignatories: signatories
+        })
+        console.log(signatories);
+    }
+
+    showSignatories = () => {
+        let indexKey = 0;
+        return this.state.documentSignatories.map(s => { indexKey++; return <p key={ s + indexKey }>{ s }</p> });
     }
 
     render() {
@@ -62,8 +74,9 @@ export class GetDocument extends Component {
                     </Form.Group>
                     <Button variant="success" type="submit">Get document info</Button>
                 </Form>
+                {this.state.documentRetrieved ? (<h3 className="mt-4">Basic document information</h3>) : null }
                 {this.state.documentRetrieved === true ?
-                    (<Table striped bordered hover variant="dark" className="mt-4">
+                    (<Table striped bordered hover variant="dark" className="mt-2">
                         <tbody>
                         <tr>
                             <td>Hash</td>
@@ -80,6 +93,16 @@ export class GetDocument extends Component {
                         <tr>
                             <td>Owner address</td>
                             <td>{this.state.documentOwner}</td>
+                        </tr>
+                        <tr>
+                            <td>Signatories</td>
+                            <td>
+                                {
+                                    this.state.signatoriesRetrieved && (this.state.documentSignatories.length === 0) ?
+                                    "No signatories" : this.showSignatories()
+                                }
+                                { this.state.signatoriesRetrieved === false ? "Loading signatories..." : null }
+                            </td>
                         </tr>
                         </tbody>
                     </Table>) : null

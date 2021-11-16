@@ -1,4 +1,6 @@
-
+/**
+ * Use this service to wrap up web3 calls to the smart contract.
+ * */
 export class DocumentSignerService {
 
     web3 = null;
@@ -19,7 +21,26 @@ export class DocumentSignerService {
         ).send({ from: this.accounts[0] });
     }
 
+    async signDocument(documentHash) {
+        return await this.contract.methods.signDocument(
+            documentHash
+        ).send({ from: this.accounts[0] });
+    }
+
+    async addSignatory(documentHash, address, fullName, description) {
+        return await this.contract.methods.addSignatory(
+            documentHash,
+            address,
+            fullName,
+            description
+        ).send({ from: this.accounts[0] });
+    }
+
     async getDocument(documentHash) {
         return await this.contract.methods.documents(documentHash).call();
+    }
+
+    async getSignatories(documentHash) {
+        return await this.contract.methods.getSignatories(documentHash).call();
     }
 }

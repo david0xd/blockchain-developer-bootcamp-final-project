@@ -60,3 +60,11 @@ h1, h2, h3, h4, h5, h6, p, label {
   width: 590px;
   text-align: center;
 }
+
+.alert-danger h6 {
+  color: #b10e0e;
+}
+
+.alert-danger p {
+  color: #b10e0e;
+}
