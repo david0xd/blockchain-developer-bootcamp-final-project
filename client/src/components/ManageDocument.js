@@ -45,7 +45,7 @@ export class ManageDocument extends Component {
 
             setInterval(() => {
                 this.setState({
-                    documentAdded: false
+                    documentActionSuccessful: false
                 })
             }, 3000)
         } catch (error) {

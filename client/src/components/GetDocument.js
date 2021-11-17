@@ -8,8 +8,10 @@ export class GetDocument extends Component {
         documentDescription: '',
         documentOwner: '',
         documentSignatories: [],
+        documentSignatures: [],
         documentRetrieved: false,
         signatoriesRetrieved: false,
+        signaturesRetrieved: false,
         showError: false,
         errorMessage: '',
     };
@@ -30,6 +32,19 @@ export class GetDocument extends Component {
 
     getDocument = async (e) => {
         e.preventDefault();
+
+        // Reset initial states
+        this.setState({
+            documentName: '',
+            documentDescription: '',
+            documentOwner: '',
+            documentRetrieved: false,
+            signatoriesRetrieved: false,
+            documentSignatories: [],
+            signaturesRetrieved: false,
+            documentSignatures: []
+        })
+
         const document = await this.documentSignerService.getDocument(this.state.documentHash);
 
         this.setState({
@@ -44,12 +59,22 @@ export class GetDocument extends Component {
             signatoriesRetrieved: true,
             documentSignatories: signatories
         })
-        console.log(signatories);
+
+        const signatures = await this.documentSignerService.getSignatures(this.state.documentHash);
+        this.setState({
+            signaturesRetrieved: true,
+            documentSignatures: signatures
+        })
     }
 
     showSignatories = () => {
         let indexKey = 0;
         return this.state.documentSignatories.map(s => { indexKey++; return <p key={ s + indexKey }>{ s }</p> });
+    }
+
+    showSignatures = () => {
+        let indexKey = 0;
+        return this.state.documentSignatures.map(s => { indexKey++; return <p key={ s + indexKey }>{ s }</p> });
     }
 
     render() {
@@ -102,6 +127,16 @@ export class GetDocument extends Component {
                                     "No signatories" : this.showSignatories()
                                 }
                                 { this.state.signatoriesRetrieved === false ? "Loading signatories..." : null }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Signatures</td>
+                            <td>
+                                {
+                                    this.state.signaturesRetrieved && (this.state.documentSignatures.length === 0) ?
+                                        "No signatures" : this.showSignatures()
+                                }
+                                { this.state.signaturesRetrieved === false ? "Loading signatures..." : null }
                             </td>
                         </tr>
                         </tbody>

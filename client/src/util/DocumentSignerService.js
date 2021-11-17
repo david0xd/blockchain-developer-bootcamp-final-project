@@ -43,4 +43,14 @@ export class DocumentSignerService {
     async getSignatories(documentHash) {
         return await this.contract.methods.getSignatories(documentHash).call();
     }
+
+    async getSignatures(documentHash) {
+        return await this.contract.methods.getSignatures(documentHash).call();
+    }
+
+    async getAccountAddress() {
+        const accountsUsed = await this.web3.eth.getAccounts();
+        this.accounts = accountsUsed;
+        return accountsUsed[0];
+    }
 }

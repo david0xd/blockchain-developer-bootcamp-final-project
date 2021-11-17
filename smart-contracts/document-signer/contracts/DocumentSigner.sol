@@ -116,6 +116,7 @@ contract DocumentSigner {
     */
     function signDocument(string calldata documentHash)
     external documentExist(documentHash) signatoryExist(documentHash, msg.sender) returns (bool) {
+        // TODO: Check if signatory already signed the document
         documents[documentHash].signatures[msg.sender] = true;
         emit DocumentSigned(documentHash, msg.sender);
 
