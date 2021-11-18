@@ -3,7 +3,7 @@ import DocumentSignerContract from "./contracts/DocumentSigner.json";
 import getWeb3 from "./getWeb3";
 
 import "./App.css";
-import {Container, Nav} from "react-bootstrap";
+import {Button, Container, Nav} from "react-bootstrap";
 import { DocumentSignerService } from "./util/DocumentSignerService";
 import { AddDocumentByHash } from "./components/AddDocumentByHash";
 import {ManageDocument} from "./components/ManageDocument";
@@ -67,6 +67,10 @@ class App extends Component {
     }
   };
 
+  connect = async () => {
+
+  }
+
   handleChange(e) {
     this.setState({ [e.target.name]: e.target.value });
   }
@@ -83,7 +87,17 @@ class App extends Component {
 
   render() {
     if (!this.state.web3) {
-      return <div>Loading Web3, accounts, and contract...</div>;
+      return (
+          <div className="App">
+            <Container fluid>
+              <div className="d-flex justify-content-center align-content-center align-items-center flex-column pb-4">
+                {/*<h6><i>Loading Web3, accounts, and contract...</i></h6>*/}
+                <h2 className="mb-2 mt-4">To begin, connect your wallet!</h2>
+                <Button variant="success" size="lg" type="button" className="mt-3" onClick={this.connect}>Connect</Button>
+              </div>
+            </Container>
+          </div>
+      );
     }
     return (
       <div className="App">

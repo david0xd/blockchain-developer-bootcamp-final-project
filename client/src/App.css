@@ -30,7 +30,7 @@ h1, h2, h3, h4, h5, h6, p, label {
 }
 
 .dark-color {
-  color: #86B049;
+  color: #86B049 !important;
 }
 
 .text-custom-info {
@@ -71,4 +71,9 @@ h1, h2, h3, h4, h5, h6, p, label {
 
 .alert-danger p {
   color: #b10e0e;
+}
+
+/* Table styles */
+th {
+  color: #86B049;
 }

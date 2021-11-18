@@ -55,9 +55,20 @@ export class GetDocument extends Component {
         })
 
         const signatories = await this.documentSignerService.getSignatories(this.state.documentHash);
+        const signatoriesWithInfo = [];
+        for (let signatory of signatories) {
+            const signatoryInfo = await this.documentSignerService
+                .getSignatoryInformation(this.state.documentHash, signatory)
+            signatoriesWithInfo.push({
+                address: signatory,
+                name: signatoryInfo[0],
+                description: signatoryInfo[1],
+            });
+        }
+
         this.setState({
             signatoriesRetrieved: true,
-            documentSignatories: signatories
+            documentSignatories: signatoriesWithInfo
         })
 
         const signatures = await this.documentSignerService.getSignatures(this.state.documentHash);
@@ -69,12 +80,29 @@ export class GetDocument extends Component {
 
     showSignatories = () => {
         let indexKey = 0;
-        return this.state.documentSignatories.map(s => { indexKey++; return <p key={ s + indexKey }>{ s }</p> });
+
+        return this.state.documentSignatories.map(s => {
+            indexKey++;
+            return (<tr key={ s + indexKey }>
+                <td>{ s.name }</td>
+                <td>{ s.description }</td>
+                <td>{ s.address }</td>
+            </tr>)
+        });
     }
 
     showSignatures = () => {
         let indexKey = 0;
-        return this.state.documentSignatures.map(s => { indexKey++; return <p key={ s + indexKey }>{ s }</p> });
+
+        return this.state.documentSignatures.map(s => {
+            indexKey++;
+            const signatoryInfo = this.state.documentSignatories.find(signatory => signatory.address === s);
+            return (<tr key={ s + indexKey }>
+                <td>{ signatoryInfo.name }</td>
+                <td>{ signatoryInfo.description }</td>
+                <td>{ s }</td>
+            </tr>)
+        });
     }
 
     render() {
@@ -104,43 +132,61 @@ export class GetDocument extends Component {
                     (<Table striped bordered hover variant="dark" className="mt-2">
                         <tbody>
                         <tr>
-                            <td>Hash</td>
+                            <td className="dark-color"><b>Hash</b></td>
                             <td>{this.state.documentHash}</td>
                         </tr>
                         <tr>
-                            <td>Name</td>
+                            <td className="dark-color"><b>Name</b></td>
                             <td>{this.state.documentName}</td>
                         </tr>
                         <tr>
-                            <td>Description</td>
+                            <td className="dark-color"><b>Description</b></td>
                             <td>{this.state.documentDescription}</td>
                         </tr>
                         <tr>
-                            <td>Owner address</td>
+                            <td className="dark-color"><b>Owner address</b></td>
                             <td>{this.state.documentOwner}</td>
-                        </tr>
-                        <tr>
-                            <td>Signatories</td>
-                            <td>
-                                {
-                                    this.state.signatoriesRetrieved && (this.state.documentSignatories.length === 0) ?
-                                    "No signatories" : this.showSignatories()
-                                }
-                                { this.state.signatoriesRetrieved === false ? "Loading signatories..." : null }
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Signatures</td>
-                            <td>
-                                {
-                                    this.state.signaturesRetrieved && (this.state.documentSignatures.length === 0) ?
-                                        "No signatures" : this.showSignatures()
-                                }
-                                { this.state.signaturesRetrieved === false ? "Loading signatures..." : null }
-                            </td>
                         </tr>
                         </tbody>
                     </Table>) : null
+                }
+                {
+                    this.state.documentSignatories && (this.state.documentSignatories.length > 0) ?
+                        <h4 className="mt-2">Added signatories</h4>
+                        : null
+                }
+                { this.state.signatoriesRetrieved && (this.state.documentSignatories.length > 0) ?
+                    (<Table striped bordered hover variant="dark" className="mt-2">
+                        <thead>
+                        <tr>
+                            <th>Signatory name</th>
+                            <th>Signatory description</th>
+                            <th>Signatory address</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        { this.showSignatories() }
+                        </tbody>
+                    </Table>) : null
+                }
+                {
+                    this.state.signaturesRetrieved && (this.state.documentSignatures.length > 0) ?
+                        <h4 className="mt-2">Signatures</h4>
+                        : null
+                }
+                { this.state.signaturesRetrieved && (this.state.documentSignatures.length > 0) ?
+                        (<Table striped bordered hover variant="dark" className="mt-2">
+                            <thead>
+                                <tr>
+                                    <th>Signatory name</th>
+                                    <th>Signatory description</th>
+                                    <th>Signatory address</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            { this.showSignatures() }
+                            </tbody>
+                        </Table>) : null
                 }
 
             </div>

@@ -44,6 +44,10 @@ export class DocumentSignerService {
         return await this.contract.methods.getSignatories(documentHash).call();
     }
 
+    async getSignatoryInformation(documentHash, signatoryAddress) {
+        return await this.contract.methods.getSignatoryInformation(documentHash, signatoryAddress).call();
+    }
+
     async getSignatures(documentHash) {
         return await this.contract.methods.getSignatures(documentHash).call();
     }
