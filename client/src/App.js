@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import DocumentSignerContract from "./contracts/DocumentSigner.json";
-import getWeb3 from "./getWeb3";
+import { getWeb3, getWeb3Directly } from "./getWeb3";
 
 import "./App.css";
 import {Button, Container, Nav} from "react-bootstrap";
@@ -10,6 +10,7 @@ import {ManageDocument} from "./components/ManageDocument";
 import {SignDocument} from "./components/SignDocument";
 import {GetDocument} from "./components/GetDocument";
 import {About} from "./components/About";
+import Web3 from "web3";
 
 const contractAddress = '0x033A00c2a9f801818099d3bd87B8432055E5F499';
 
@@ -22,8 +23,6 @@ class App extends Component {
     documentSignerService: null,
     currentPage: 'addDocument'
   };
-
-  documentSignerService = null;
 
   constructor(props) {
     super(props);
@@ -39,12 +38,19 @@ class App extends Component {
   }
 
   componentDidMount = async () => {
+    await this.connect();
+  };
+
+  async connect(connectingWithButton) {
+    console.log('Connecting...');
     try {
       // Get network provider and web3 instance.
-      const web3 = await getWeb3();
-
-      // Use web3 to get the user's accounts.
-      const accounts = await web3.eth.getAccounts();
+      let web3;
+      if (connectingWithButton) {
+        web3 = await getWeb3Directly();
+      } else {
+        web3 = await getWeb3();
+      }
 
       // Get the contract instance.
       // const networkId = await web3.eth.net.getId();
@@ -52,23 +58,32 @@ class App extends Component {
       const instance = new web3.eth.Contract(DocumentSignerContract.abi, contractAddress);
       instance.options.address = contractAddress;
 
+      // Use web3 to get the user's accounts.
+      const accounts = await web3.eth.getAccounts();
+
       // Instantiate document signer service
       const documentSignerService = new DocumentSignerService(web3, instance, accounts);
 
       // Set web3, accounts, and contract to the state, and then proceed with an
       // example of interacting with the contract's methods.
-      this.setState({ web3, accounts, contract: instance, documentSignerService });
+      this.setState({ web3, contract: instance, accounts, documentSignerService });
+
+      // detect Metamask account change
+      window.ethereum.on('accountsChanged', async (accounts) => {
+        await this.state.documentSignerService.accountChanged();
+        this.setState({ accounts });
+      });
     } catch (error) {
       // Catch any errors for any of the above operations.
       alert(
-        `Failed to load web3, accounts, or contract. Check console for details.`,
+          `Failed to load web3, accounts, or contract. Check console for details.`,
       );
       console.error(error);
     }
-  };
+  }
 
-  connect = async () => {
-
+  async connectWithButton() {
+    await this.connect(true);
   }
 
   handleChange(e) {
@@ -85,15 +100,24 @@ class App extends Component {
     this.setState({ currentPage: e.target.name });
   }
 
+  isConnected() {
+    return !!(this.state.accounts && this.state.accounts.length > 0);
+  }
+
   render() {
-    if (!this.state.web3) {
+    if (!this.isConnected()) {
       return (
           <div className="App">
             <Container fluid>
               <div className="d-flex justify-content-center align-content-center align-items-center flex-column pb-4">
-                {/*<h6><i>Loading Web3, accounts, and contract...</i></h6>*/}
                 <h2 className="mb-2 mt-4">To begin, connect your wallet!</h2>
-                <Button variant="success" size="lg" type="button" className="mt-3" onClick={this.connect}>Connect</Button>
+                <Button variant="success"
+                        size="lg"
+                        type="button"
+                        className="mt-3"
+                        onClick={ this.connectWithButton.bind(this) }>
+                  Connect
+                </Button>
               </div>
             </Container>
           </div>
@@ -103,6 +127,9 @@ class App extends Component {
       <div className="App">
         <Container fluid>
           <img src="logo.png" alt="Logo" className="logo mt-4 mb-2" />
+          {this.state.accounts && this.state.accounts.length > 0 ?
+            <p className="mt-2 mb-2">Connected with account: <b>{ this.state.accounts[0] }</b> </p> : null
+          }
           <Nav className="justify-content-center mt-3 mb-3 text-light">
             <Nav.Item>
               <Nav.Link onClick={this.handleNavChange} ref={this.pages.addDocument} name="addDocument" className="nav-active">

@@ -26,7 +26,11 @@ export class GetDocument extends Component {
     handleChange(e) {
         this.setState({
             [e.target.name]: e.target.value,
-            documentRetrieved: false
+            documentRetrieved: false,
+            signatoriesRetrieved: false,
+            signaturesRetrieved: false,
+            documentSignatories: [],
+            documentSignatures: []
         });
     }
 

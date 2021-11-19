@@ -57,4 +57,10 @@ export class DocumentSignerService {
         this.accounts = accountsUsed;
         return accountsUsed[0];
     }
+
+    async accountChanged() {
+        const accountsUsed = await this.web3.eth.getAccounts();
+        this.accounts = accountsUsed;
+        return accountsUsed[0];
+    }
 }
