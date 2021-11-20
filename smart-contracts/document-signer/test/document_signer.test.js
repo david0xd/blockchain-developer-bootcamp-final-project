@@ -101,6 +101,35 @@ contract("DocumentSigner", function (accounts) {
                 );
             })
 
+            it('should add a signatory with payable information', async () => {
+                await instance.addDocument(
+                    document.documentHash,
+                    document.name,
+                    document.description,
+                    document.algorithm,
+                    { from: alice }
+                )
+                const amountToBePaid = 300000000000000000;
+                await instance.addSignatory(
+                    document.documentHash,
+                    signatoryBob.signatoryAddress,
+                    signatoryBob.fullName,
+                    signatoryBob.description,
+                    { from: alice, value: amountToBePaid }
+                )
+
+                const result = await instance.getSignatoryInformation(
+                    document.documentHash,
+                    signatoryBob.signatoryAddress
+                )
+
+                assert.equal(
+                    result[3],
+                    amountToBePaid,
+                    "the amount to be paid to the signatory does not match the expected value",
+                );
+            })
+
             it('should sign a document', async () => {
                 await instance.addDocument(
                     document.documentHash,
@@ -126,6 +155,39 @@ contract("DocumentSigner", function (accounts) {
                     result[0],
                     bob,
                     "the signer address does not match the expected value",
+                );
+            })
+
+            it('should send ETH to the signer when the signer signs payable document', async () => {
+                await instance.addDocument(
+                    document.documentHash,
+                    document.name,
+                    document.description,
+                    document.algorithm,
+                    { from: alice }
+                )
+                const amountToBePaid = 300000000000000000;
+                await instance.addSignatory(
+                    document.documentHash,
+                    signatoryBob.signatoryAddress,
+                    signatoryBob.fullName,
+                    signatoryBob.description,
+                    { from: alice, value: amountToBePaid }
+                )
+
+                await instance.signDocument(document.documentHash, { from: bob })
+
+                const result = await instance.getSignatoryInformation(document.documentHash, bob)
+
+                assert.equal(
+                    result[3],
+                    0,
+                    "the amount to be paid does not match the expected value",
+                );
+                assert.equal(
+                    result[4],
+                    true,
+                    "the paid state does not match the expected value",
                 );
             })
         })

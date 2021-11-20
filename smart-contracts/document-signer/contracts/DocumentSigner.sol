@@ -22,6 +22,8 @@ contract DocumentSigner {
         string description;
         address signatoryAddress;
         uint256 signedAt;
+        uint256 amountToBePaid;
+        bool paid;
     }
 
     /* Documents mapped by hash */
@@ -148,7 +150,7 @@ contract DocumentSigner {
         address signatoryAddress,
         string calldata fullName,
         string calldata description
-    ) external
+    ) external payable
     documentExist(documentHash)
     onlyDocumentOwner(documentHash)
     signatoryDoesNotExist(documentHash, signatoryAddress)
@@ -158,7 +160,9 @@ contract DocumentSigner {
                 fullName: fullName,
                 description: description,
                 signatoryAddress: signatoryAddress,
-                signedAt: 0
+                signedAt: 0,
+                amountToBePaid: msg.value,
+                paid: false
             })
         );
         documents[documentHash].addedSignatories[signatoryAddress] = true;
@@ -169,6 +173,7 @@ contract DocumentSigner {
 
     /**
     * Add signature to the document specified by a document hash.
+    * If required send the specified ETH amount to the signer.
     *
     * @param documentHash Hash of a document to sign
     *
@@ -180,16 +185,20 @@ contract DocumentSigner {
     signatoryExist(documentHash, msg.sender)
     signatoryDidNotSign(documentHash, msg.sender)
     returns (bool) {
-        // TODO: Check if signatory already signed the document
         // Mark document as signed
         documents[documentHash].signatures[msg.sender] = true;
 
-        // Update signature timestamp
+        // Update signature timestamp & make payment if needed
         Signatory [] memory signatories = documents[documentHash].signatories;
 
         for (uint i = 0; i < signatories.length; i++) {
             if (signatories[i].signatoryAddress == msg.sender) {
                 documents[documentHash].signatories[i].signedAt = block.timestamp;
+                if (signatories[i].amountToBePaid > 0) {
+                    documents[documentHash].signatories[i].amountToBePaid = 0;
+                    documents[documentHash].signatories[i].paid = true;
+                    msg.sender.transfer(signatories[i].amountToBePaid);
+                }
             }
         }
 
@@ -224,25 +233,29 @@ contract DocumentSigner {
     * @param documentHash Hash of a document related to the signatory
     * @param signatoryAddress Address of a signatory of which info is requested
     *
-    * returns (string fullName, string description)
+    * returns (string fullName, string description, uint256 signedAt, uint256 amountToBePaid)
     */
     function getSignatoryInformation(string memory documentHash, address signatoryAddress)
     public view documentExist(documentHash) signatoryExist(documentHash, signatoryAddress)
-    returns (string memory, string memory) {
+    returns (string memory, string memory, uint256, uint256, bool) {
         Signatory [] memory signatories = documents[documentHash].signatories;
-
-        string memory signatoryFullName;
-        string memory signatoryDescription;
+        Signatory memory targetSignatory;
 
         for (uint i = 0; i < signatories.length; i++) {
             Signatory memory signatory = signatories[i];
             if (signatory.signatoryAddress == signatoryAddress) {
-                signatoryFullName = signatory.fullName;
-                signatoryDescription = signatory.description;
+                targetSignatory = signatory;
+                break;
             }
         }
 
-        return (signatoryFullName, signatoryDescription);
+        return (
+            targetSignatory.fullName,
+            targetSignatory.description,
+            targetSignatory.signedAt,
+            targetSignatory.amountToBePaid,
+            targetSignatory.paid
+        );
     }
 
     /**
