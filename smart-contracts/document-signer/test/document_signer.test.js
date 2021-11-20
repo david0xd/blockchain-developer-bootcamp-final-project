@@ -9,7 +9,8 @@ contract("DocumentSigner", function (accounts) {
     const document = {
         documentHash: 'e8a12f6c1b134206cc8c0eccef8b5d114cf9ee3e8d835736564f8dc377d18d23',
         name: 'Document One',
-        description: 'Just a test document...'
+        description: 'Just a test document...',
+        algorithm: 'SHA256'
     }
 
     const signatoryBob = {
@@ -43,6 +44,7 @@ contract("DocumentSigner", function (accounts) {
                     document.documentHash,
                     document.name,
                     document.description,
+                    document.algorithm,
                     { from: alice }
                 )
 
@@ -78,6 +80,7 @@ contract("DocumentSigner", function (accounts) {
                     document.documentHash,
                     document.name,
                     document.description,
+                    document.algorithm,
                     { from: alice }
                 )
 
@@ -103,6 +106,7 @@ contract("DocumentSigner", function (accounts) {
                     document.documentHash,
                     document.name,
                     document.description,
+                    document.algorithm,
                     { from: alice }
                 )
 
@@ -132,6 +136,7 @@ contract("DocumentSigner", function (accounts) {
                     document.documentHash,
                     document.name,
                     document.description,
+                    document.algorithm,
                     { from: alice }
                 )
 
@@ -171,6 +176,7 @@ contract("DocumentSigner", function (accounts) {
                     document.documentHash,
                     document.name,
                     document.description,
+                    document.algorithm,
                     { from: alice }
                 )
 
@@ -202,6 +208,7 @@ contract("DocumentSigner", function (accounts) {
                     document.documentHash,
                     document.name,
                     document.description,
+                    document.algorithm,
                     { from: alice }
                 )
 
@@ -247,6 +254,7 @@ contract("DocumentSigner", function (accounts) {
                     document.documentHash,
                     document.name,
                     document.description,
+                    document.algorithm,
                     { from: alice }
                 )
 
@@ -266,6 +274,7 @@ contract("DocumentSigner", function (accounts) {
                     document.documentHash,
                     document.name,
                     document.description,
+                    document.algorithm,
                     { from: alice }
                 )
                 let eventEmitted = false;
@@ -293,6 +302,7 @@ contract("DocumentSigner", function (accounts) {
                     document.documentHash,
                     document.name,
                     document.description,
+                    document.algorithm,
                     { from: alice }
                 )
                 let eventEmitted = false;
@@ -329,6 +339,7 @@ contract("DocumentSigner", function (accounts) {
                 document.documentHash,
                 document.name,
                 document.description,
+                document.algorithm,
                 { from: alice }
             )
 
@@ -337,6 +348,38 @@ contract("DocumentSigner", function (accounts) {
                     document.documentHash,
                     document.name,
                     document.description,
+                    document.algorithm,
+                    { from: alice }
+                )
+                assert.equal(false, 'Action did not throw expected error.')
+            } catch (error) {
+                assert(true, !!error)
+            }
+        })
+
+        it('should return an error when adding a signatory address that already exists for a document', async () => {
+            await instance.addDocument(
+                document.documentHash,
+                document.name,
+                document.description,
+                document.algorithm,
+                { from: alice }
+            )
+
+            await instance.addSignatory(
+                document.documentHash,
+                signatoryBob.signatoryAddress,
+                signatoryBob.fullName,
+                signatoryBob.description,
+                { from: alice }
+            )
+
+            try {
+                await instance.addSignatory(
+                    document.documentHash,
+                    signatoryBob.signatoryAddress,
+                    signatoryBob.fullName,
+                    signatoryBob.description,
                     { from: alice }
                 )
                 assert.equal(false, 'Action did not throw expected error.')
@@ -350,6 +393,7 @@ contract("DocumentSigner", function (accounts) {
                 document.documentHash,
                 document.name,
                 document.description,
+                document.algorithm,
                 { from: alice }
             )
 
@@ -382,6 +426,7 @@ contract("DocumentSigner", function (accounts) {
                 document.documentHash,
                 document.name,
                 document.description,
+                document.algorithm,
                 { from: alice }
             )
 
