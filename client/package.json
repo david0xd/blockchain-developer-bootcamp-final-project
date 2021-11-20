@@ -30,5 +30,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@babel/helper-builder-react-jsx": "^7.16.0",
+    "@babel/helper-define-map": "^7.16.0",
+    "@babel/helper-regex": "^7.10.5"
   }
 }
