@@ -421,7 +421,7 @@ contract("DocumentSigner", function (accounts) {
             }
         })
 
-        it('should return an error when user try to sign a document that was not added to', async () => {
+        it('should return an error when user try to sign a document to which they were not added', async () => {
             await instance.addDocument(
                 document.documentHash,
                 document.name,
@@ -429,6 +429,31 @@ contract("DocumentSigner", function (accounts) {
                 document.algorithm,
                 { from: alice }
             )
+
+            try {
+                await instance.signDocument(document.documentHash, { from: bob })
+                assert.equal(false, 'Action did not throw expected error.')
+            } catch (error) {
+                assert(true, !!error)
+            }
+        })
+
+        it('should return an error when user try to sign a document that they have already signed', async () => {
+            await instance.addDocument(
+                document.documentHash,
+                document.name,
+                document.description,
+                document.algorithm,
+                { from: alice }
+            )
+            await instance.addSignatory(
+                document.documentHash,
+                signatoryBob.signatoryAddress,
+                signatoryBob.fullName,
+                signatoryBob.description,
+                { from: alice }
+            )
+            await instance.signDocument(document.documentHash, { from: bob })
 
             try {
                 await instance.signDocument(document.documentHash, { from: bob })

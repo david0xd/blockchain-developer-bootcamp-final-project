@@ -81,6 +81,20 @@ contract DocumentSigner {
     }
 
     /**
+    * Require that the signatory did not sign a specified document.
+    *
+    * @param documentHash Hash of a document to check
+    * @param signatoryAddress Address of a signatory
+    */
+    modifier signatoryDidNotSign(string memory documentHash, address signatoryAddress) {
+        require(
+            documents[documentHash].signatures[signatoryAddress] == false,
+            "Signatory have already signed the specified document."
+        );
+        _;
+    }
+
+    /**
     * Require that call comes from document owner.
     * @param documentHash Hash of a document to check
     */
@@ -161,7 +175,11 @@ contract DocumentSigner {
     * returns bool
     */
     function signDocument(string calldata documentHash)
-    external documentExist(documentHash) signatoryExist(documentHash, msg.sender) returns (bool) {
+    external
+    documentExist(documentHash)
+    signatoryExist(documentHash, msg.sender)
+    signatoryDidNotSign(documentHash, msg.sender)
+    returns (bool) {
         // TODO: Check if signatory already signed the document
         // Mark document as signed
         documents[documentHash].signatures[msg.sender] = true;
