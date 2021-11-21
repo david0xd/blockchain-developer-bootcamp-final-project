@@ -13,11 +13,12 @@ export class DocumentSignerService {
         this.accounts = accounts;
     }
 
-    async addDocument(documentHash, documentName, documentDescription) {
+    async addDocument(documentHash, documentName, documentDescription, documentHashingAlgorithm) {
         return await this.contract.methods.addDocument(
             documentHash,
             documentName,
-            documentDescription
+            documentDescription,
+            documentHashingAlgorithm
         ).send({ from: this.accounts[0] });
     }
 
@@ -27,13 +28,17 @@ export class DocumentSignerService {
         ).send({ from: this.accounts[0] });
     }
 
-    async addSignatory(documentHash, address, fullName, description) {
+    async addSignatory(documentHash, address, fullName, description, amountToBePaidInETH) {
+        // Handle amount to be paid
+        const amountToBePaidInWei = this.web3.utils.toWei(amountToBePaidInETH.toString(), 'ether');
+        console.log(amountToBePaidInWei);
+
         return await this.contract.methods.addSignatory(
             documentHash,
             address,
             fullName,
             description
-        ).send({ from: this.accounts[0] });
+        ).send({ from: this.accounts[0], value: amountToBePaidInWei });
     }
 
     async getDocument(documentHash) {

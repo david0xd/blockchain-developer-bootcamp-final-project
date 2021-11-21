@@ -3,10 +3,6 @@ import React, { Component } from "react";
 export class About extends Component {
     state = {};
 
-    constructor(props) {
-        super(props);
-    }
-
     render() {
         return (
             <div className="d-flex justify-content-center align-content-center align-items-center flex-column">

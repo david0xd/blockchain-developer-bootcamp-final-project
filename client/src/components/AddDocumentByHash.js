@@ -1,11 +1,12 @@
-import React, {Component} from "react";
-import {Alert, Button, Form} from "react-bootstrap";
+import React, { Component } from "react";
+import { Alert, Button, Form } from "react-bootstrap";
 
 export class AddDocumentByHash extends Component {
     state = {
         documentHash: '',
         documentName: '',
         documentDescription: '',
+        documentHashingAlgorithm: 'SHA-256',
         documentAdded: false,
         showError: false,
         errorMessage: '',
@@ -24,13 +25,14 @@ export class AddDocumentByHash extends Component {
 
     addDocumentHash = async (e) => {
         e.preventDefault();
-        const {documentHash, documentName, documentDescription} = this.state;
+        const {documentHash, documentName, documentDescription, documentHashingAlgorithm} = this.state;
 
         try {
             await this.documentSignerService.addDocument(
                 documentHash,
                 documentName,
-                documentDescription
+                documentDescription,
+                documentHashingAlgorithm
             );
             this.setState({
                 documentAdded: true,
@@ -67,6 +69,20 @@ export class AddDocumentByHash extends Component {
                         <p>{this.state.errorMessage}</p>
                     </Alert>) : null
                 }
+                <Alert variant={"info"}>
+                    <p>
+                        You can use some of the online tools to hash your document like&nbsp;
+                        <a href="https://md5file.com/calculator" target="_blank" rel="noreferrer">this one</a> or&nbsp;
+                        <a href="https://emn178.github.io/online-tools/keccak_256_checksum.html"
+                           target="_blank"
+                           rel="noreferrer"
+                        >this one</a> or you can use&nbsp;
+                        <a href="https://www.npmjs.com/package/hash-files"
+                           target="_blank"
+                           rel="noreferrer"
+                        >NPM package</a>.
+                    </p>
+                </Alert>
                 <Form className="mt-2" onSubmit={this.addDocumentHash}>
                     <Form.Group className="mb-3" controlId="formDocumentHash">
                         <Form.Label>Document hash</Form.Label>
@@ -77,7 +93,7 @@ export class AddDocumentByHash extends Component {
                                       onChange={this.handleChange}
                         />
                         <Form.Text className="text-custom-info">
-                            Use SHA256 algorithm to hash your documents!
+                            Advice: Use SHA256 algorithm to hash your documents!
                         </Form.Text>
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="formDocumentName">
@@ -105,7 +121,27 @@ export class AddDocumentByHash extends Component {
                             Optionally, add description of your document.
                         </Form.Text>
                     </Form.Group>
-                    <Button variant="success" type="submit">Add document hash</Button>
+                    <Form.Group>
+                        <Form.Label>Algorithm used</Form.Label>
+                        <Form.Select aria-label="Hashing algorithm selection"
+                                     name="documentAlgorithm"
+                                     value={this.state.documentHashingAlgorithm}
+                                     onChange={this.handleChange}
+                        >
+                            <option value="SHA-256">SHA-256 (recommended)</option>
+                            <option value="SHA-1">SHA-1</option>
+                            <option value="SHA-384">SHA-384</option>
+                            <option value="SHA-512">SHA-512</option>
+                            <option value="MD5">MD5</option>
+                            <option value="KECCAK-256">Keccak-256</option>
+                            <option value="KECCAK-384">Keccak-384</option>
+                            <option value="KECCAK-512">Keccak-512</option>
+                        </Form.Select>
+                        <Form.Text className="text-custom-info">
+                            Choose the algorithm you file is hashed with to help it's later verification.
+                        </Form.Text>
+                    </Form.Group>
+                    <Button variant="success" type="submit" className="mt-2">Add document hash</Button>
                 </Form>
             </div>
         );

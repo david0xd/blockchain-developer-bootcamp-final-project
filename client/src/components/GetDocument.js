@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import {Alert, Button, Form, Table} from "react-bootstrap";
+import { Alert, Button, Form, Table } from "react-bootstrap";
 
 export class GetDocument extends Component {
     state = {
@@ -7,6 +7,8 @@ export class GetDocument extends Component {
         documentName: '',
         documentDescription: '',
         documentOwner: '',
+        documentHashingAlgorithm: '',
+        documentTimestamp: '',
         documentSignatories: [],
         documentSignatures: [],
         documentRetrieved: false,
@@ -42,6 +44,8 @@ export class GetDocument extends Component {
             documentName: '',
             documentDescription: '',
             documentOwner: '',
+            documentHashingAlgorithm: '',
+            documentTimestamp: '',
             documentRetrieved: false,
             signatoriesRetrieved: false,
             documentSignatories: [],
@@ -51,10 +55,18 @@ export class GetDocument extends Component {
 
         const document = await this.documentSignerService.getDocument(this.state.documentHash);
 
+        // Manage timestamp
+        // const dateCreated = new Date(document.createdAt * 1000);
+        // const time = dateCreated.getHours() + ':' + dateCreated.getMinutes();
+        // const dateFormatted = dateCreated.toLocaleDateString("en-US") + ' - ' + time + 'h';
+        const dateFormatted = this.getFormattedDateFromTimestamp(document.createdAt);
+
         this.setState({
             documentName: document.name,
             documentDescription: document.description,
             documentOwner: document.owner,
+            documentHashingAlgorithm: document.algorithm,
+            documentTimestamp: dateFormatted,
             documentRetrieved: true
         })
 
@@ -63,12 +75,17 @@ export class GetDocument extends Component {
         for (let signatory of signatories) {
             const signatoryInfo = await this.documentSignerService
                 .getSignatoryInformation(this.state.documentHash, signatory)
+            const amountToBePaidInETH = this.documentSignerService.web3.utils.fromWei(signatoryInfo[3]);
             signatoriesWithInfo.push({
                 address: signatory,
                 name: signatoryInfo[0],
                 description: signatoryInfo[1],
+                signedAt: signatoryInfo[2],
+                amountToBePaid: amountToBePaidInETH,
+                paid: signatoryInfo[4],
             });
         }
+        console.log(signatoriesWithInfo)
 
         this.setState({
             signatoriesRetrieved: true,
@@ -82,6 +99,12 @@ export class GetDocument extends Component {
         })
     }
 
+    getFormattedDateFromTimestamp(timestamp) {
+        const dateCreated = new Date(timestamp * 1000);
+        const time = dateCreated.getHours() + ':' + dateCreated.getMinutes();
+        return dateCreated.toLocaleDateString("en-US") + ' - ' + time + 'h';
+    }
+
     showSignatories = () => {
         let indexKey = 0;
 
@@ -91,6 +114,8 @@ export class GetDocument extends Component {
                 <td>{ s.name }</td>
                 <td>{ s.description }</td>
                 <td>{ s.address }</td>
+                <td>{ s.amountToBePaid } ETH</td>
+                <td>{ s.paid === true ? 'Yes' : 'No' }</td>
             </tr>)
         });
     }
@@ -99,13 +124,19 @@ export class GetDocument extends Component {
         let indexKey = 0;
 
         return this.state.documentSignatures.map(s => {
-            indexKey++;
-            const signatoryInfo = this.state.documentSignatories.find(signatory => signatory.address === s);
-            return (<tr key={ s + indexKey }>
-                <td>{ signatoryInfo.name }</td>
-                <td>{ signatoryInfo.description }</td>
-                <td>{ s }</td>
-            </tr>)
+            if (s !== '0x0000000000000000000000000000000000000000') {
+                indexKey++;
+                const signatoryInfo = this.state.documentSignatories.find(signatory => signatory.address === s);
+
+                return (<tr key={ s + indexKey }>
+                    <td>{ signatoryInfo.name }</td>
+                    <td>{ signatoryInfo.description }</td>
+                    <td>{ s }</td>
+                    <td>{ this.getFormattedDateFromTimestamp(signatoryInfo.signedAt) }</td>
+                </tr>)
+            } else {
+                console.log('Show signatures: Skipping 0x0000000000000000000000000000000000000000 address.');
+            }
         });
     }
 
@@ -151,6 +182,14 @@ export class GetDocument extends Component {
                             <td className="dark-color"><b>Owner address</b></td>
                             <td>{this.state.documentOwner}</td>
                         </tr>
+                        <tr>
+                            <td className="dark-color"><b>Hashing algorithm</b></td>
+                            <td>{this.state.documentHashingAlgorithm}</td>
+                        </tr>
+                        <tr>
+                            <td className="dark-color"><b>Created at</b></td>
+                            <td>{this.state.documentTimestamp}</td>
+                        </tr>
                         </tbody>
                     </Table>) : null
                 }
@@ -166,6 +205,8 @@ export class GetDocument extends Component {
                             <th>Signatory name</th>
                             <th>Signatory description</th>
                             <th>Signatory address</th>
+                            <th>Amount to be paid</th>
+                            <th>Paid</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -185,6 +226,7 @@ export class GetDocument extends Component {
                                     <th>Signatory name</th>
                                     <th>Signatory description</th>
                                     <th>Signatory address</th>
+                                    <th>Signed at</th>
                                 </tr>
                             </thead>
                             <tbody>

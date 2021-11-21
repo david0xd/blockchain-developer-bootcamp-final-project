@@ -7,6 +7,7 @@ export class ManageDocument extends Component {
         signatoryAddress: '',
         signatoryName: '',
         signatoryDescription: '',
+        amountToBePaid: '',
         documentActionSuccessful: false,
         showError: false,
         errorMessage: '',
@@ -34,7 +35,8 @@ export class ManageDocument extends Component {
                 this.state.documentHash,
                 this.state.signatoryAddress,
                 this.state.signatoryName,
-                this.state.signatoryDescription
+                this.state.signatoryDescription,
+                this.state.amountToBePaid
             );
             this.setState({
                 signatoryAddress: '',
@@ -112,6 +114,19 @@ export class ManageDocument extends Component {
                                       onChange={this.handleChange}
                                       className="document-hash-input"
                         />
+                    </Form.Group>
+                    <Form.Group className="mb-3" controlId="formSignatoryAmount">
+                        <Form.Label>Amount to send</Form.Label>
+                        <Form.Control type="text"
+                                      placeholder="Enter the amount of ETH to be sent to the contract."
+                                      name="amountToBePaid"
+                                      value={this.state.amountToBePaid}
+                                      onChange={this.handleChange}
+                                      className="document-hash-input"
+                        />
+                        <Form.Text className="text-custom-info">
+                            Once signatory sign the document, the amount will be transferred to their account.
+                        </Form.Text>
                     </Form.Group>
                     <Button variant="success" type="button" onClick={this.addSignatory}>Add Signatory</Button>
                 </Form>
