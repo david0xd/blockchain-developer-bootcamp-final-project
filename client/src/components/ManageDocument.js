@@ -7,7 +7,7 @@ export class ManageDocument extends Component {
         signatoryAddress: '',
         signatoryName: '',
         signatoryDescription: '',
-        amountToBePaid: '',
+        amountToBePaid: 0,
         documentActionSuccessful: false,
         showError: false,
         errorMessage: '',
@@ -116,7 +116,7 @@ export class ManageDocument extends Component {
                         />
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="formSignatoryAmount">
-                        <Form.Label>Amount to send</Form.Label>
+                        <Form.Label>Amount of ETH to send</Form.Label>
                         <Form.Control type="text"
                                       placeholder="Enter the amount of ETH to be sent to the contract."
                                       name="amountToBePaid"
