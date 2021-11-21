@@ -1,9 +1,33 @@
 pragma solidity >=0.5.16 <0.9.0;
 
+// Document signer interface
+interface IDocumentSigner {
+    function addDocument(string calldata documentHash,
+        string calldata name,
+        string calldata description,
+        string calldata algorithm) external returns (bool);
+
+    function addSignatory(
+        string calldata documentHash,
+        address signatoryAddress,
+        string calldata fullName,
+        string calldata description
+    ) external payable returns (bool);
+
+    function signDocument(string calldata documentHash) external returns (bool);
+
+    function getSignatories(string calldata documentHash) external view returns (address [] memory);
+
+    function getSignatoryInformation(string calldata documentHash, address signatoryAddress)
+    external view returns (string memory, string memory, uint256, uint256, bool);
+
+    function getSignatures(string calldata documentHash) external view returns (address [] memory);
+}
+
 /**
 * Document Signer Smart Contract
 */
-contract DocumentSigner {
+contract DocumentSigner is IDocumentSigner {
 
     struct Document {
         string documentHash;
@@ -214,7 +238,7 @@ contract DocumentSigner {
     *
     * returns address []
     */
-    function getSignatories(string memory documentHash) public view documentExist(documentHash)
+    function getSignatories(string calldata documentHash) external view documentExist(documentHash)
     returns (address [] memory) {
         Signatory [] memory signatories = documents[documentHash].signatories;
         address [] memory addresses = new address [] (signatories.length);
@@ -235,8 +259,8 @@ contract DocumentSigner {
     *
     * returns (string fullName, string description, uint256 signedAt, uint256 amountToBePaid)
     */
-    function getSignatoryInformation(string memory documentHash, address signatoryAddress)
-    public view documentExist(documentHash) signatoryExist(documentHash, signatoryAddress)
+    function getSignatoryInformation(string calldata documentHash, address signatoryAddress)
+    external view documentExist(documentHash) signatoryExist(documentHash, signatoryAddress)
     returns (string memory, string memory, uint256, uint256, bool) {
         Signatory [] memory signatories = documents[documentHash].signatories;
         Signatory memory targetSignatory;
@@ -265,7 +289,8 @@ contract DocumentSigner {
     *
     * returns address []
     */
-    function getSignatures(string calldata documentHash) external view documentExist(documentHash) returns (address [] memory) {
+    function getSignatures(string calldata documentHash) external view
+    documentExist(documentHash) returns (address [] memory) {
         uint256 totalSignatories = documents[documentHash].signatories.length;
         address [] memory signatures = new address[](totalSignatories);
         for (uint i = 0; i < totalSignatories; i++) {
