@@ -1,12 +1,29 @@
 pragma solidity >=0.5.16 <0.9.0;
 
-// Document signer interface
+/// @title Document Signer Interface
+/// @author David Drazic
+/// @notice This interface specifies all external functions used for interaction with Document Signer smart contract
 interface IDocumentSigner {
-    function addDocument(string calldata documentHash,
+    /// @notice Add new document to the smart contract storage.
+    /// @param documentHash Hash of a document to add
+    /// @param name Name of a document
+    /// @param description Arbitrary description of a document
+    /// @param algorithm Algorithm that the document is hashed with
+    /// @return bool (true) when document adding process has finished successfully
+    function addDocument(
+        string calldata documentHash,
         string calldata name,
         string calldata description,
-        string calldata algorithm) external returns (bool);
+        string calldata algorithm
+    ) external returns (bool);
 
+    /// @notice Add new user (signatory) to the smart contract and allow them to sign a specified document.
+    /// @notice Only owner of a document can perform this action.
+    /// @param documentHash Hash of a document to check
+    /// @param signatoryAddress Address of a signatory to allow to sign specified document
+    /// @param fullName Full name of a signatory that can be used to identify a person
+    /// @param description Arbitrary description of a signatory or their role (i.e. director, employee, seller, etc.)
+    /// @return bool (true) when operation is successfully completed
     function addSignatory(
         string calldata documentHash,
         address signatoryAddress,
@@ -14,19 +31,39 @@ interface IDocumentSigner {
         string calldata description
     ) external payable returns (bool);
 
+    /// @notice Add signature to the document specified by a document hash.
+    /// @notice If required, send the specified ETH amount to the signer.
+    /// @param documentHash Hash of a document to sign
+    /// @return bool (true) when operation is completed successfully
     function signDocument(string calldata documentHash) external returns (bool);
 
+    /// @notice Get signatories added to the document.
+    /// @param documentHash Hash of a document of which signatories are requested
+    /// @return address [] Array of signatory addresses
     function getSignatories(string calldata documentHash) external view returns (address [] memory);
 
-    function getSignatoryInformation(string calldata documentHash, address signatoryAddress)
-    external view returns (string memory, string memory, uint256, uint256, bool);
+    /// @notice Get signatory information.
+    /// @param documentHash Hash of a document related to the signatory
+    /// @param signatoryAddress Address of a signatory of which info is requested
+    /// @return string fullName,
+    /// @return string description,
+    /// @return uint256 signedAt,
+    /// @return uint256 amountToBePaid,
+    /// @return bool paid
+    function getSignatoryInformation(
+        string calldata documentHash,
+        address signatoryAddress
+    ) external view returns (string memory, string memory, uint256, uint256, bool);
 
+    /// @notice Get document signatures in form of addresses of the signatories who signed the specified document
+    /// @param documentHash Hash of a document of which to retrieve signatures
+    /// @return address [] Array of addresses which signed a specified document
     function getSignatures(string calldata documentHash) external view returns (address [] memory);
 }
 
-/**
-* Document Signer Smart Contract
-*/
+/// @title Document Signer Smart Contract
+/// @author David Drazic
+/// @notice This smart contract is proof of concept for signing documents using hashes within blockchain
 contract DocumentSigner is IDocumentSigner {
 
     struct Document {
@@ -50,40 +87,40 @@ contract DocumentSigner is IDocumentSigner {
         bool paid;
     }
 
-    /* Documents mapped by hash */
+    /// @notice Documents mapped by hash
     mapping (string => Document) public documents;
 
-    /**
-    * Events
-    */
+    /// @notice Emitted when a document hash is successfully added
+    /// @param documentHash Hash of a document that is added
     event DocumentAdded(string indexed documentHash);
+
+    /// @notice Emitted when a signatory is successfully added to a document entity
+    /// @param documentHash Hash od a document which added signatory can sign
+    /// @param signatoryAddress Address of a signatory that is added
     event SignatoryAdded(string documentHash, address indexed signatoryAddress);
+
+    /// @notice Emitted when a signatory successfully sign a document
+    /// @param documentHash Hash of a document that is signed
+    /// @param signatoryAddress Address of a signatory who signed a document
     event DocumentSigned(string documentHash, address indexed signatoryAddress);
 
-    /**
-    * Require that document does not exist.
-    * @param documentHash Hash of a document to check
-    */
+    /// @notice Require that document does not exist
+    /// @param documentHash Hash of a document to check
     modifier documentDoesNotExist(string memory documentHash) {
         require(documents[documentHash].owner == address(0), "Document has been already added.");
         _;
     }
 
-    /**
-    * Require that document exist.
-    * @param documentHash Hash of a document to check
-    */
+    /// @notice Require that document exist.
+    /// @param documentHash Hash of a document to check
     modifier documentExist(string memory documentHash) {
         require(documents[documentHash].owner != address(0), "Document does not exist.");
         _;
     }
 
-    /**
-    * Require that the signatory is added to a document.
-    *
-    * @param documentHash Hash of a document to check
-    * @param signatoryAddress Address of a signatory
-    */
+    /// @notice Require that the signatory is added to a document
+    /// @param documentHash Hash of a document to check
+    /// @param signatoryAddress Address of a signatory
     modifier signatoryExist(string memory documentHash, address signatoryAddress) {
         require(
             documents[documentHash].addedSignatories[signatoryAddress] == true,
@@ -92,12 +129,9 @@ contract DocumentSigner is IDocumentSigner {
         _;
     }
 
-    /**
-    * Require that signatory does not exists within a document.
-    *
-    * @param documentHash Hash of a document to check
-    * @param signatoryAddress Address of a signatory
-    */
+    /// @notice Require that signatory does not exists within a document.
+    /// @param documentHash Hash of a document to check
+    /// @param signatoryAddress Address of a signatory
     modifier signatoryDoesNotExist(string memory documentHash, address signatoryAddress) {
         require(
             documents[documentHash].addedSignatories[signatoryAddress] == false,
@@ -106,12 +140,9 @@ contract DocumentSigner is IDocumentSigner {
         _;
     }
 
-    /**
-    * Require that the signatory did not sign a specified document.
-    *
-    * @param documentHash Hash of a document to check
-    * @param signatoryAddress Address of a signatory
-    */
+    /// @notice Require that the signatory did not sign a specified document
+    /// @param documentHash Hash of a document to check
+    /// @param signatoryAddress Address of a signatory
     modifier signatoryDidNotSign(string memory documentHash, address signatoryAddress) {
         require(
             documents[documentHash].signatures[signatoryAddress] == false,
@@ -120,10 +151,8 @@ contract DocumentSigner is IDocumentSigner {
         _;
     }
 
-    /**
-    * Require that call comes from document owner.
-    * @param documentHash Hash of a document to check
-    */
+    /// @notice Require that call comes from document owner
+    /// @param documentHash Hash of a document to check
     modifier onlyDocumentOwner(string memory documentHash) {
         require(
             documents[documentHash].owner == msg.sender,
@@ -131,21 +160,20 @@ contract DocumentSigner is IDocumentSigner {
         _;
     }
 
-    /**
-    * Add new document to the smart contract storage.
-    *
-    * @param documentHash Hash of a document to add
-    * @param name Name of a document
-    * @param description Arbitrary description of a document
-    * @param algorithm Algorithm that the document is hashed with
-    *
-    * returns bool
-    */
-    function addDocument(string calldata documentHash,
+    /// @notice Add new document to the smart contract storage.
+    /// @param documentHash Hash of a document to add
+    /// @param name Name of a document
+    /// @param description Arbitrary description of a document
+    /// @param algorithm Algorithm that the document is hashed with
+    /// @return bool (true) when document adding process has finished successfully
+    function addDocument(
+        string calldata documentHash,
         string calldata name,
         string calldata description,
-        string calldata algorithm) external
-    documentDoesNotExist(documentHash) returns (bool) {
+        string calldata algorithm
+    ) external
+    documentDoesNotExist(documentHash)
+    returns (bool) {
         documents[documentHash].documentHash = documentHash;
         documents[documentHash].name = name;
         documents[documentHash].description = description;
@@ -158,26 +186,20 @@ contract DocumentSigner is IDocumentSigner {
         return true;
     }
 
-    /**
-    * Add new user (signatory) to the smart contract and allow them to sign a specified document.
-    * Note: Only owner of a document can perform this action.
-    *
-    * @param documentHash Hash of a document to check
-    * @param signatoryAddress Address of a signatory to allow to sign specified document
-    * @param fullName Full name of a signatory that can be used to identify a person
-    * @param description Arbitrary description of a signatory or their role (i.e. director, employee, seller, etc.)
-    *
-    * returns bool
-    */
+    /// @notice Add new user (signatory) to the smart contract and allow them to sign a specified document.
+    /// @notice Only owner of a document can perform this action.
+    /// @param documentHash Hash of a document to check
+    /// @param signatoryAddress Address of a signatory to allow to sign specified document
+    /// @param fullName Full name of a signatory that can be used to identify a person
+    /// @param description Arbitrary description of a signatory or their role (i.e. director, employee, seller, etc.)
+    /// @return bool (true) when operation is successfully completed
     function addSignatory(
         string calldata documentHash,
         address signatoryAddress,
         string calldata fullName,
         string calldata description
     ) external payable
-    documentExist(documentHash)
-    onlyDocumentOwner(documentHash)
-    signatoryDoesNotExist(documentHash, signatoryAddress)
+    documentExist(documentHash) onlyDocumentOwner(documentHash) signatoryDoesNotExist(documentHash, signatoryAddress)
     returns (bool) {
         documents[documentHash].signatories.push(
             Signatory({
@@ -195,14 +217,10 @@ contract DocumentSigner is IDocumentSigner {
         return true;
     }
 
-    /**
-    * Add signature to the document specified by a document hash.
-    * If required send the specified ETH amount to the signer.
-    *
-    * @param documentHash Hash of a document to sign
-    *
-    * returns bool
-    */
+    /// @notice Add signature to the document specified by a document hash.
+    /// @notice If required, send the specified ETH amount to the signer.
+    /// @param documentHash Hash of a document to sign
+    /// @return bool (true) when operation is completed successfully
     function signDocument(string calldata documentHash)
     external
     documentExist(documentHash)
@@ -231,14 +249,12 @@ contract DocumentSigner is IDocumentSigner {
         return true;
     }
 
-    /**
-    * Get signatories added to the document.
-    *
-    * @param documentHash Hash of a document of which signatories are requested
-    *
-    * returns address []
-    */
-    function getSignatories(string calldata documentHash) external view documentExist(documentHash)
+    /// @notice Get signatories added to the document.
+    /// @param documentHash Hash of a document of which signatories are requested
+    /// @return address [] Array of signatory addresses
+    function getSignatories(string calldata documentHash)
+    external view
+    documentExist(documentHash)
     returns (address [] memory) {
         Signatory [] memory signatories = documents[documentHash].signatories;
         address [] memory addresses = new address [] (signatories.length);
@@ -251,16 +267,17 @@ contract DocumentSigner is IDocumentSigner {
         return (addresses);
     }
 
-    /**
-    * Get signatory information.
-    *
-    * @param documentHash Hash of a document related to the signatory
-    * @param signatoryAddress Address of a signatory of which info is requested
-    *
-    * returns (string fullName, string description, uint256 signedAt, uint256 amountToBePaid)
-    */
+    /// @notice Get signatory information.
+    /// @param documentHash Hash of a document related to the signatory
+    /// @param signatoryAddress Address of a signatory of which info is requested
+    /// @return string fullName,
+    /// @return string description,
+    /// @return uint256 signedAt,
+    /// @return uint256 amountToBePaid,
+    /// @return bool paid
     function getSignatoryInformation(string calldata documentHash, address signatoryAddress)
-    external view documentExist(documentHash) signatoryExist(documentHash, signatoryAddress)
+    external view
+    documentExist(documentHash) signatoryExist(documentHash, signatoryAddress)
     returns (string memory, string memory, uint256, uint256, bool) {
         Signatory [] memory signatories = documents[documentHash].signatories;
         Signatory memory targetSignatory;
@@ -282,15 +299,13 @@ contract DocumentSigner is IDocumentSigner {
         );
     }
 
-    /**
-    * Get document signatures in form of addresses of the signatories who signed the specified document.
-    *
-    * @param documentHash Hash of a document of which to retrieve signatures
-    *
-    * returns address []
-    */
-    function getSignatures(string calldata documentHash) external view
-    documentExist(documentHash) returns (address [] memory) {
+    /// @notice Get document signatures in form of addresses of the signatories who signed the specified document
+    /// @param documentHash Hash of a document of which to retrieve signatures
+    /// @return address [] Array of addresses which signed a specified document
+    function getSignatures(string calldata documentHash)
+    external view
+    documentExist(documentHash)
+    returns (address [] memory) {
         uint256 totalSignatories = documents[documentHash].signatories.length;
         address [] memory signatures = new address[](totalSignatories);
         for (uint i = 0; i < totalSignatories; i++) {
