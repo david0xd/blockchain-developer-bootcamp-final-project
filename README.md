@@ -1,5 +1,17 @@
 # Consensys Blockchain Bootcamp 2021 - Final Project
 
+## Directory structure
+
+## Running on localhost
+
+## Running unit tests for smart contract
+
+## Public ethereum account for NFT certification
+
+## Deployed demo (frontend/client) application
+
+## Screencast (walking through the project and use cases)
+
 *This project is about signing a document and verifying its signatures on a blockchain.*
 
 ## Problem description
@@ -47,4 +59,4 @@ More things to consider on the way:
 ## Identified entities:
  - Document (hash, timestamp, added by related information, description, name)
  - Signature (firstname, lastname, city, country, personal citizen number, identity card number)
-
+ 
