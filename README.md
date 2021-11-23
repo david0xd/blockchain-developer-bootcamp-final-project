@@ -58,6 +58,7 @@ Document hash:
 ## Public ethereum account for NFT certification
 
 ## Deployed demo (frontend/client) application
+[https://david0xd.github.io/](https://david0xd.github.io/)
 
 ## Screencast (walking through the project and use cases)
 
