@@ -43,16 +43,21 @@ Total of 18 unit tests should pass.
 
 ## Screencast (walking through the project and use cases)
 
-## Problem description
-There are many things in this world relying on contracts. The modern world is driven by the contract agreements between people, countries, institutions, etc.
+## Project description
 
-Contracts are usually represented by the document specifying the rules which parties need to respect. Contracts are usually valid only when signed by the involved parties.
+### Problem description and motivation
+There are many things in this world relying on contracts. 
+The modern world is driven by the contract agreements between people, companies, countries, institutions, etc.
+
+Contracts are usually represented by the document specifying the rules which parties need to respect. 
+Contracts are usually valid only when signed by the involved parties.
 
 Most of today contracts are still kept in form of papers while some are in digital format.
-To sign a contract, parties usually need to write their name signature on a paper or to sign it using biometric identity cards or similar.
+To sign a contract, parties usually need to write their name signature on a paper or to sign it using biometric 
+identity cards or similar.
 
 Some vulnerabilities of the given approaches can be answered by the following questions:
- - What if papers or documents are lost?
+ - What if signed papers or documents are lost?
  - What if somebody's signature is counterfeit?
  - What if the certified (centralized) authority providing biometric identity cards is corrupted or compromised?
  - How anybody can guarantee and verify that the contracts are not changed on any side at any time?
@@ -64,28 +69,48 @@ Some of the most basic flaws of the current contract system:
  - Complex signing process rules.
  
 ## Solution proposal
-Imagine the world in which blockchain approach for managing and signing documents (contracts) is well established and adopted. The whole set of problems mentioned above would likely disappear.
+Imagine the world in which blockchain approach for managing and signing documents (contracts) is well established and adopted. 
+The whole set of problems mentioned above would likely disappear.
 
 The blockchain approach proposes a creation of an application that will handle three  main use cases:
-1. Hashing a document and storing documents hash on a blockchain.
-2. Signing a document by parties and storing signature information.
-3. Verifying document's hash at any time on a blockchain while having an overview of its signatures.
-
-*Additionally blockchain approach can propose:*
- - *KYC-like (personal identity) mechanism for registering & approving trusted party on a blockchain in terms related to the smart contract established between the involved parties in decentralized way.*
+1. Hashing a document and storing document's hash inside smart contract deployed on a blockchain.
+2. Adding the signatories as the parties that are allowed to sign a document within some of their information.
+   - This is extended by a "payable documents" feature which allows document owner to send some value for each signatory that will be paid to the signatory after signing.
+3. Signing a document by parties and storing signature information.
+   - This is also extended by a "payable documents" feature and in this part signatory will receive the amount of tokens specified by the document owner.
+4. Verifying document's hash at any time on a blockchain while having an overview of its signatories and signatures.
 
 ## Use case description:
-1. User is able to upload a document that is then hashed and added to blockchain.
-2. User is able to upload the document or find it by hash and see its information then sign it.
-3. User is able to upload the document and get information about the signatures (verification process).
-
-More things to consider on the way:
-* User can add and lock their personal identity information, later used for signing.
-* User can send/share and allow another party to review, verify and approve the personal identity information provided by the user (party cooperation agreement).
-* User can verify the hash of the personal information attached to the signature in order to trust the party's signing activity.
-* Only allowed parties can have the personal information of another party.
+1. User is able to add a document hash to the blockchain smart contract.
+2. User which is a document owner is able to add another persons as the signatories and allow them to sign his documents.
+3. User is able to send some ETH as the value when adding each signatory. Each signatory is paid the exact amount that document owner specified.
+4. User is able to enter the document hash and see the document information alongside with the signatories, amounts to be paid, signatures and timestamps when actions occurred.
+5. User is able to sign the document that they're allowed to. If specified, a signatory user will receive the amount of ETH left for them when they sign the document.
 
 ## Identified entities:
- - Document (hash, timestamp, added by related information, description, name)
- - Signature (firstname, lastname, city, country, personal citizen number, identity card number)
+ - Document structure: 
+   - documentHash - _string_ Hash of a document
+   - name - _string_ Name of a document
+   - description - _string_ Description of a document and its purpose
+   - owner - _address_ Address of a document owner
+   - signatories - _Signatory[]_ Array of signatories allowed to sign the document.
+   - addedSignatories - _mapping_ Mapping of which addresses of signatories are allowed to sign the document.
+   - signatures - _mapping_ Mapping of which address have signed the document
+   - algorithm - _string_ Algorithm that is used for a document hashing
+   - createdAt - _uint256_ Timestamp (block.timestamp)
+ - Signatory structure: 
+   - fullName - string
+   - description - string
+   - signatoryAddress - address
+   - signedAt - uint256
+   - amountToBePaid - uint256
+   - paid - bool
  
+## Possible future improvements
+- KYC-like (personal identity) mechanism for registering & approving trusted party on a blockchain in terms related to 
+the smart contract established between the involved parties in decentralized way. 
+Some kind of handshake mechanism between the owner and signatory.
+- Possibility for the document owners to remove signatory before they sign the document and withdraw the ETH they've sent.
+- Making an optimized Smart Contracts using Layer 2 (L2) solutions. This would propose of keeping the additional data 
+on the L2, while having only the main data such as document hashes and signatures on the main (ethereum) blockchain.
+- Allowing document to be stored using IPFS and linking them to the smart contract.
