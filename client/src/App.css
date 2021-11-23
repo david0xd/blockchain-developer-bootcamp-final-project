@@ -81,3 +81,9 @@ h1, h2, h3, h4, h5, h6, p, label {
 th {
   color: #86B049;
 }
+
+/* About page */
+.about-page {
+  max-width: 900px;
+  font-size: 17px;
+}

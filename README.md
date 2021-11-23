@@ -60,6 +60,9 @@ Document hash:
 ## Deployed demo (frontend/client) application
 [https://david0xd.github.io/](https://david0xd.github.io/)
 
+_Note: Frontend (client web3) application is tested only in Google Chrome with MetaMask. 
+There is no guarantee that it will work properly in other browsers and wallets at the moment._
+
 ## Screencast (walking through the project and use cases)
 
 ## Project description
@@ -125,6 +128,18 @@ The blockchain approach proposes a creation of an application that will handle t
    - amountToBePaid - _uint256_ Amount of ETH in wei that will be paid to the signatory when they sign a document
    - paid - _bool_ Boolean value which represent if the amount is paid to the signatory (default: false)
    
+## Creator's notes (_good to read as it explains more about the concept_)
+This application is imagined and designed to work without any third party off-chain services or resources.
+Hence, it provides a little more possibility for storing data on chain.
+
+Despite that the usage of the gas is a little higher, it should justify itself by removing third party off-chain 
+solutions and enabling overview of the history and purpose of the documents and their signatures that are immutable 
+and stored on the blockchain forever as the single source of truth.
+
+In order to make this future-proof this application can be developed as L2 solution. 
+In that case only the most important data would be saved on the main blockchain such as document hash, owner and 
+signatory addresses, etc. That approach would be able to significantly reduce the cost of gas.
+
 ## Possible future improvements
 - KYC-like (personal identity) mechanism for registering & approving trusted party on a blockchain in terms related to 
 the smart contract established between the involved parties in decentralized way. 
