@@ -37,6 +37,9 @@ Then run `truffle test`.
 Tests will run automatically with the default truffle configurations.
 Total of 18 unit tests should pass.
 
+## Generating document hash in local environment
+
+
 ## Public ethereum account for NFT certification
 
 ## Deployed demo (frontend/client) application
@@ -99,13 +102,13 @@ The blockchain approach proposes a creation of an application that will handle t
    - algorithm - _string_ Algorithm that is used for a document hashing
    - createdAt - _uint256_ Timestamp (block.timestamp)
  - Signatory structure: 
-   - fullName - string
-   - description - string
-   - signatoryAddress - address
-   - signedAt - uint256
-   - amountToBePaid - uint256
-   - paid - bool
- 
+   - fullName - _string_ Full name of a signatory person
+   - description - _string_ Description of a signatory role, reason for signing, etc.
+   - signatoryAddress - _address_ Address of a signatory
+   - signedAt - _uint256_ Unix timestamp when signatory signed the document
+   - amountToBePaid - _uint256_ Amount of ETH in wei that will be paid to the signatory when they sign a document
+   - paid - _bool_ Boolean value which represent if the amount is paid to the signatory (default: false)
+   
 ## Possible future improvements
 - KYC-like (personal identity) mechanism for registering & approving trusted party on a blockchain in terms related to 
 the smart contract established between the involved parties in decentralized way. 
