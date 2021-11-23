@@ -4,7 +4,8 @@
 ## Directory structure
 Smart contracts are located under `smart-contracts` directory
 The main contract is under `smart-contracts/document-signer` directory.
-Frontend (client) application is located in `client` folder.
+Frontend (client) application is located in `client` directory.
+File hashing tool is located under `hash-tool` directory.
 
 ## Running on localhost
 In order to run fullstack application (client frontend + blockchain) the following tools needs to be installed first:
@@ -38,7 +39,21 @@ Tests will run automatically with the default truffle configurations.
 Total of 18 unit tests should pass.
 
 ## Generating document hash in local environment
+1. Change directory to `hash-tool` withing this project.
+2. Run `npm install` command and wait to complete.
+3. Use the following command to generate document hash: `node index.js your_file_name hashing_algorithm`
+   - Example one: `node index.js TestDocument1.pdf sha256`
+   - Example two: `node index.js TestDocument2.pdf sha512`
+   - Notice that there are two example document that can be used for testing (`TestDocument1.pdf` and `TestDocument2.pdf`).
 
+Hashing output should look like this:
+```
+$ node index.js TestDocument1.pdf sha256
+Hash successfully calculated!
+Algorithm used: sha256
+Document hash:
+61d1250700e55c909255a61e8fb13b5cf148b2f6ba18cb9b190766376d53dc15
+```
 
 ## Public ethereum account for NFT certification
 

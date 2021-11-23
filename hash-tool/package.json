@@ -1,0 +1,28 @@
+{
+  "name": "hash-tool",
+  "version": "1.0.0",
+  "description": "Hash tool used for hashing document as a part of smart contract blockchain solution for storing document hashes.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "hash",
+    "document",
+    "hash",
+    "blockchain",
+    "document",
+    "signer",
+    "sign",
+    "hashing",
+    "hash",
+    "algorithm",
+    "hash",
+    "file"
+  ],
+  "author": "David Drazic",
+  "license": "ISC",
+  "dependencies": {
+    "hash-files": "^1.1.1"
+  }
+}
