@@ -26,7 +26,7 @@ In order to run fullstack application (client frontend + blockchain) the followi
 ### Starting client (frontend) application
 1. Open new terminal and position inside `/client` folder.
 2. Run `yarn` as a command which will install all the required dependencies.
-3. Configure address of your freshly deployed smart contract inside `App.js` file right below the imports, defined as something like `const contractAddress = '0xb305B37aA206f234012fd7587F9Af83E907a25e0';`.
+3. Configure address of your freshly deployed smart contract inside `contract_address.json` located under `/src/` directory.
    - Note: You can always get smart contract address from the Ganache UI.
 4. Run `yarn start` in order to start the frontend application in development mode on [http://localhost:3000](http://localhost:3000)
    - Note: For more information about the managing client app and its builds consult README.md file located under the `/client/` directory.

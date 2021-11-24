@@ -3,6 +3,7 @@ import DocumentSignerContract from "./contracts/DocumentSigner.json";
 import { getWeb3, getWeb3Directly } from "./getWeb3";
 
 import "./App.css";
+import { contractAddress } from "./contract_address.json";
 import { Button, Container, Nav } from "react-bootstrap";
 import { DocumentSignerService } from "./util/DocumentSignerService";
 import { AddDocumentByHash } from "./components/AddDocumentByHash";
@@ -10,8 +11,6 @@ import { ManageDocument } from "./components/ManageDocument";
 import { SignDocument } from "./components/SignDocument";
 import { GetDocument } from "./components/GetDocument";
 import { About } from "./components/About";
-
-const contractAddress = '0xb305B37aA206f234012fd7587F9Af83E907a25e0';
 
 class App extends Component {
   pages = null;

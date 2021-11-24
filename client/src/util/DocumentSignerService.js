@@ -68,4 +68,25 @@ export class DocumentSignerService {
         this.accounts = accountsUsed;
         return accountsUsed[0];
     }
+
+    pollTransaction = ({ interval, maxAttempts, transactionHash }) => {
+        console.log('Start transaction polling...');
+        let attempts = 0;
+
+        const waitForTransactionToComplete = async (resolve, reject) => {
+            console.log('- transaction poll');
+            const result = await this.web3.eth.getTransactionReceipt(transactionHash)
+            attempts++;
+
+            if (result !== null) {
+                return resolve(result);
+            } else if (maxAttempts && attempts === maxAttempts) {
+                return reject(new Error('Exceeded max number of attempts for transaction polling'));
+            } else {
+                setTimeout(waitForTransactionToComplete, interval, resolve, reject);
+            }
+        };
+
+        return new Promise(waitForTransactionToComplete);
+    };
 }

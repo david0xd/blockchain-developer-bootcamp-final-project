@@ -18456,12 +18456,13 @@
     "5777": {
       "events": {},
       "links": {},
-      "address": "0x033A00c2a9f801818099d3bd87B8432055E5F499",
-      "transactionHash": "0xaef470aeb1f85907623c20af422f9db18450cc81db2e34c21d974fbcfc6ba858"
+      "address": "0xefFF18D61e89E40Fd1620B778a99b5Cc4B2E42cC",
+      "transactionHash": "0xdf388d451fe97dd16bf52e35590f0f7299c40e9b9ebc225f674c64ec95605d6a"
     }
   },
   "schemaVersion": "3.4.3",
-  "updatedAt": "2021-11-22T19:02:59.073Z",
+  "updatedAt": "2021-11-23T23:21:15.744Z",
+  "networkType": "ethereum",
   "devdoc": {
     "author": "David Drazic",
     "methods": {

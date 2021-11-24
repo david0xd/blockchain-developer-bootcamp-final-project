@@ -61,6 +61,7 @@ h1, h2, h3, h4, h5, h6, p, label {
   text-align: center;
 }
 
+/* Alerts */
 .alert {
   max-width: 1600px;
 }
@@ -75,6 +76,10 @@ h1, h2, h3, h4, h5, h6, p, label {
 
 .alert-info p {
   color: #343434;
+}
+
+.alert-success p {
+  color: #127312;
 }
 
 /* Table styles */

@@ -8,6 +8,8 @@ export class AddDocumentByHash extends Component {
         documentDescription: '',
         documentHashingAlgorithm: 'SHA-256',
         documentAdded: false,
+        lastTransactionHash: '',
+        transactionConfirmed: false,
         showError: false,
         errorMessage: '',
     };
@@ -28,23 +30,43 @@ export class AddDocumentByHash extends Component {
         const {documentHash, documentName, documentDescription, documentHashingAlgorithm} = this.state;
 
         try {
-            await this.documentSignerService.addDocument(
+            const result = await this.documentSignerService.addDocument(
                 documentHash,
                 documentName,
                 documentDescription,
                 documentHashingAlgorithm
             );
+
             this.setState({
                 documentAdded: true,
                 documentHash: '',
                 documentName: '',
                 documentDescription: '',
+                lastTransactionHash: result.transactionHash
             })
             setInterval(() => {
                 this.setState({
                     documentAdded: false
                 })
-            }, 3000)
+            }, 4000)
+
+            const transactionPollResult = await this.documentSignerService
+                .pollTransaction({
+                    interval: 2000,
+                    maxAttempts: 180,
+                    transactionHash: this.state.lastTransactionHash
+                });
+
+            if (transactionPollResult) {
+                this.setState({
+                    transactionConfirmed: true
+                });
+                setInterval(() => {
+                    this.setState({
+                        transactionConfirmed: false
+                    })
+                }, 10000)
+            }
         } catch (error) {
             console.log(error);
             const errorMessage = error.message;
@@ -58,17 +80,6 @@ export class AddDocumentByHash extends Component {
     render() {
         return (
             <div className="d-flex justify-content-center align-content-center align-items-center flex-column">
-                {this.state.documentAdded === true ?
-                    (<Alert variant={"success"}>
-                        Document successfully added!
-                    </Alert>) : null
-                }
-                {this.state.showError === true ?
-                    (<Alert variant={"danger"}>
-                        <h6>Error occurred while trying to add new document.</h6>
-                        <p>{this.state.errorMessage}</p>
-                    </Alert>) : null
-                }
                 <Alert variant={"info"}>
                     <p>
                         You can use some of the online tools to hash your document like&nbsp;
@@ -83,6 +94,24 @@ export class AddDocumentByHash extends Component {
                         >NPM package</a>.
                     </p>
                 </Alert>
+                {this.state.transactionConfirmed === true ?
+                    (<Alert variant={"success"}>
+                        Transaction confirmed!
+                        <p>Transaction hash of last added document: { this.state.lastTransactionHash }</p>
+                    </Alert>) : null
+                }
+                {this.state.documentAdded === true ?
+                    (<Alert variant={"success"}>
+                        Transaction successfully submitted!
+                        <p>Transaction hash of last added document: { this.state.lastTransactionHash }</p>
+                    </Alert>) : null
+                }
+                {this.state.showError === true ?
+                    (<Alert variant={"danger"}>
+                        <h6>Error occurred while trying to add new document.</h6>
+                        <p>{this.state.errorMessage}</p>
+                    </Alert>) : null
+                }
                 <Form className="mt-2" onSubmit={this.addDocumentHash}>
                     <Form.Group className="mb-3" controlId="formDocumentHash">
                         <Form.Label>Document hash</Form.Label>
