@@ -55,6 +55,16 @@ Document hash:
 61d1250700e55c909255a61e8fb13b5cf148b2f6ba18cb9b190766376d53dc15
 ```
 
+## Deploying contract to Ropsten test network
+Configuration for deploying contract to Ropsten test network is inside `truffle-config.js` located under 
+`/smart-contracts/document-signer` directory.
+To deploy contract:
+1. Run `npm install` inside the `/smart-contracts/document-signer` directory and wait for installation to finish.
+2. Under the same directory create file named `.secret` and place secret mnemonic of your wallet inside that file. 
+Be sure that your account has some ETH on Ropsten test network which can be used for gas fees required for deployment.
+3. Under the same directory create file called `.infura` and put your [Infura](https://infura.io) project ID inside.
+4. Finally, run the following command to deploy the contract: `truffle deploy --network ropsten`.
+
 ## Public ethereum account for NFT certification
 
 ## Deployed demo (frontend/client) application

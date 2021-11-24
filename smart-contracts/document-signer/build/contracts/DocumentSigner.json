@@ -18453,6 +18453,12 @@
     "version": "0.5.16+commit.9c3226ce.Emscripten.clang"
   },
   "networks": {
+    "3": {
+      "events": {},
+      "links": {},
+      "address": "0xAC3dbc19D0d4fe098DF41ccf7789528B38ee08c4",
+      "transactionHash": "0xb91a8cf76a9b814a514d712be6a42061d98a59c1025dd195a3c190a29907eb4a"
+    },
     "5777": {
       "events": {},
       "links": {},
@@ -18461,7 +18467,7 @@
     }
   },
   "schemaVersion": "3.4.3",
-  "updatedAt": "2021-11-23T23:21:15.744Z",
+  "updatedAt": "2021-11-24T22:33:25.256Z",
   "networkType": "ethereum",
   "devdoc": {
     "author": "David Drazic",
