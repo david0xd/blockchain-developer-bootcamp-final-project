@@ -54,10 +54,36 @@ export class About extends Component {
                     </p>
 
                     <h2>Managing documents</h2>
+                    <p>
+                        This feature is used for adding signatories to the document. When you add signatory to your
+                        document, they will be able to sign it.
+                    </p>
+                    <p>Only document owner can add (allow) signatory to sign specific document.</p>
+                    <p>
+                        When adding a signatory you can specify the amount of ETH you want to pay to the signatory
+                        when they sign the proposed document.
+                    </p>
 
                     <h2>Signing documents</h2>
+                    <p>
+                        If you are allowed to sign the specific document you can use this page to do so.
+                        Just enter the document hash and click Sign button.
+                    </p>
+                    <p>
+                        If a document owner provided some ETH for your signature, you'll receive it immediately after
+                        you sign.
+                    </p>
+                    <p>Once signed, documents cannot be signed again.</p>
 
                     <h2>Getting document information</h2>
+                    <p>
+                        On this page you can enter the document hash and click on the available button in order to get
+                        information about the document.
+                    </p>
+                    <p>
+                        If a document contains signatories and signatures, they will appear on the screen.
+                        If not, these information will be omitted.
+                    </p>
                 </div>
             </div>
         );
