@@ -98,7 +98,12 @@ export class SignDocument extends Component {
                                       className="document-hash-input"
                         />
                     </Form.Group>
-                    <Button variant="success" type="button" onClick={this.signDocument}>Sign Document</Button>
+                    <Button variant="success"
+                            type="button"
+                            onClick={this.signDocument}
+                            disabled={!this.state.documentHash}>
+                        Sign Document
+                    </Button>
                 </Form>
             </div>
         );

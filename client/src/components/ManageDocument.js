@@ -128,7 +128,13 @@ export class ManageDocument extends Component {
                             Once signatory sign the document, the amount will be transferred to their account.
                         </Form.Text>
                     </Form.Group>
-                    <Button variant="success" type="button" onClick={this.addSignatory}>Add Signatory</Button>
+                    <Button variant="success"
+                            type="button"
+                            onClick={this.addSignatory}
+                            disabled={!this.state.documentHash || !this.state.signatoryAddress}
+                    >
+                        Add Signatory
+                    </Button>
                 </Form>
             </div>
         );

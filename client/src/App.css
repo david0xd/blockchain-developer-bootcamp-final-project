@@ -37,8 +37,21 @@ h1, h2, h3, h4, h5, h6, p, label {
   color: #86B049;
 }
 
+/* Buttons */
 .btn-success {
   background: #86B049;
+}
+
+.btn-success.disabled, .btn-success:disabled {
+  color: #fff;
+  background-color: #658537;
+  border-color: #658537;
+}
+
+.btn-success:hover {
+  color: #fff;
+  background-color: #759d3c;
+  border-color: #759d3c;
 }
 
 .logo { max-width: 330px; }

@@ -16,6 +16,7 @@ export class GetDocument extends Component {
         signaturesRetrieved: false,
         showError: false,
         errorMessage: '',
+        documentDoesNotExist: false
     };
     documentSignerService = null;
 
@@ -50,15 +51,22 @@ export class GetDocument extends Component {
             signatoriesRetrieved: false,
             documentSignatories: [],
             signaturesRetrieved: false,
-            documentSignatures: []
+            documentSignatures: [],
+            documentDoesNotExist: false
         })
 
         const document = await this.documentSignerService.getDocument(this.state.documentHash);
 
+        console.log(document);
+
+        if (document && document.owner === '0x0000000000000000000000000000000000000000') {
+            this.setState({
+                documentDoesNotExist: true
+            })
+            return null;
+        }
+
         // Manage timestamp
-        // const dateCreated = new Date(document.createdAt * 1000);
-        // const time = dateCreated.getHours() + ':' + dateCreated.getMinutes();
-        // const dateFormatted = dateCreated.toLocaleDateString("en-US") + ' - ' + time + 'h';
         const dateFormatted = this.getFormattedDateFromTimestamp(document.createdAt);
 
         this.setState({
@@ -145,8 +153,14 @@ export class GetDocument extends Component {
             <div className="d-flex justify-content-center align-content-center align-items-center flex-column">
                 {this.state.showError === true ?
                     (<Alert variant={"danger"}>
-                        <h6>Error occurred while trying to perform action over document.</h6>
+                        <h6>Error occurred while trying to get document information.</h6>
                         <p>{this.state.errorMessage}</p>
+                    </Alert>) : null
+                }
+                {this.state.documentDoesNotExist === true ?
+                    (<Alert variant={"danger"}>
+                        <h6>Requested document does not exist!</h6>
+                        <p>Check the document hash you've entered and try again.</p>
                     </Alert>) : null
                 }
                 <Form className="mt-2" onSubmit={this.getDocument}>
@@ -160,7 +174,9 @@ export class GetDocument extends Component {
                                       className="document-hash-input"
                         />
                     </Form.Group>
-                    <Button variant="success" type="submit">Get document info</Button>
+                    <Button variant="success" type="submit" disabled={!this.state.documentHash}>
+                        Get document info
+                    </Button>
                 </Form>
                 {this.state.documentRetrieved ? (<h3 className="mt-4">Basic document information</h3>) : null }
                 {this.state.documentRetrieved === true ?

@@ -48,12 +48,12 @@ export class AddDocumentByHash extends Component {
                 documentHash: '',
                 documentName: '',
                 documentDescription: '',
-                lastTransactionHash: result.transactionHash
+                lastTransactionHash: result.transactionHash,
+                transactionInProgress: false
             })
             setInterval(() => {
                 this.setState({
-                    documentAdded: false,
-                    transactionInProgress: false
+                    documentAdded: false
                 })
             }, 9000)
         } catch (error) {
@@ -160,7 +160,9 @@ export class AddDocumentByHash extends Component {
                             Choose the algorithm you file is hashed with to help it's later verification.
                         </Form.Text>
                     </Form.Group>
-                    <Button variant="success" type="submit" className="mt-2">Add document hash</Button>
+                    <Button variant="success" type="submit" className="mt-2" disabled={!this.state.documentHash}>
+                        Add document hash
+                    </Button>
                 </Form>
             </div>
         );
