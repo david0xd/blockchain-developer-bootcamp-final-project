@@ -70,7 +70,7 @@ Be sure that your account has some ETH on Ropsten test network which can be used
 ## Deployed demo (frontend/client) application
 [https://david0xd.github.io/](https://david0xd.github.io/)
 
-_Note: Frontend (client web3) application is tested only in Google Chrome with MetaMask. 
+_Note: Frontend (client web3) application is tested only in Google Chrome and Mozilla Firefox with MetaMask. 
 There is no guarantee that it will work properly in other browsers and wallets at the moment._
 
 ## Screencast (walking through the project and use cases)

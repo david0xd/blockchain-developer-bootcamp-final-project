@@ -9,7 +9,7 @@ export class AddDocumentByHash extends Component {
         documentHashingAlgorithm: 'SHA-256',
         documentAdded: false,
         lastTransactionHash: '',
-        transactionConfirmed: false,
+        transactionInProgress: false,
         showError: false,
         errorMessage: '',
     };
@@ -30,6 +30,12 @@ export class AddDocumentByHash extends Component {
         const {documentHash, documentName, documentDescription, documentHashingAlgorithm} = this.state;
 
         try {
+            this.setState({
+                transactionInProgress: true,
+                showError: false,
+                errorMessage: ''
+            })
+
             const result = await this.documentSignerService.addDocument(
                 documentHash,
                 documentName,
@@ -46,33 +52,17 @@ export class AddDocumentByHash extends Component {
             })
             setInterval(() => {
                 this.setState({
-                    documentAdded: false
+                    documentAdded: false,
+                    transactionInProgress: false
                 })
-            }, 4000)
-
-            const transactionPollResult = await this.documentSignerService
-                .pollTransaction({
-                    interval: 2000,
-                    maxAttempts: 180,
-                    transactionHash: this.state.lastTransactionHash
-                });
-
-            if (transactionPollResult) {
-                this.setState({
-                    transactionConfirmed: true
-                });
-                setInterval(() => {
-                    this.setState({
-                        transactionConfirmed: false
-                    })
-                }, 10000)
-            }
+            }, 9000)
         } catch (error) {
             console.log(error);
             const errorMessage = error.message;
             this.setState({
                 showError: true,
-                errorMessage: errorMessage
+                errorMessage: errorMessage,
+                transactionInProgress: false
             })
         }
     }
@@ -94,21 +84,21 @@ export class AddDocumentByHash extends Component {
                         >NPM package</a>.
                     </p>
                 </Alert>
-                {this.state.transactionConfirmed === true ?
+                {this.state.transactionInProgress === true ?
                     (<Alert variant={"success"}>
-                        Transaction confirmed!
-                        <p>Transaction hash of last added document: { this.state.lastTransactionHash }</p>
+                        You successfully initiated a transaction for adding document hash!<br />
+                        Confirm the transaction in your wallet and wait to complete.
                     </Alert>) : null
                 }
                 {this.state.documentAdded === true ?
                     (<Alert variant={"success"}>
-                        Transaction successfully submitted!
-                        <p>Transaction hash of last added document: { this.state.lastTransactionHash }</p>
+                        Transaction confirmed! Document hash successfully added.
+                        <p>Transaction hash: { this.state.lastTransactionHash }</p>
                     </Alert>) : null
                 }
                 {this.state.showError === true ?
                     (<Alert variant={"danger"}>
-                        <h6>Error occurred while trying to add new document.</h6>
+                        <h6>Error occurred while trying to add new document hash.</h6>
                         <p>{this.state.errorMessage}</p>
                     </Alert>) : null
                 }
