@@ -66,6 +66,7 @@ Be sure that your account has some ETH on Ropsten test network which can be used
 4. Finally, run the following command to deploy the contract: `truffle deploy --network ropsten`.
 
 ## Public ethereum account for NFT certification
+`0xeAafe252FD66Bb6395AB67D4774DF8af38b5De1D`
 
 ## Deployed demo (frontend/client) application
 [https://david0xd.github.io/](https://david0xd.github.io/)
