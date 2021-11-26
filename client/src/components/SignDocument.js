@@ -9,6 +9,7 @@ export class SignDocument extends Component {
         documentActionSuccessful: false,
         showError: false,
         errorMessage: '',
+        transactionInProgress: false
     };
     documentSignerService = null;
 
@@ -26,7 +27,8 @@ export class SignDocument extends Component {
         // Reset potential errors
         this.setState({
             showError: false,
-            errorMessage: ''
+            errorMessage: '',
+            transactionInProgress: true
         })
 
         // Get signatories to see if the user is allowed to sign the specified document
@@ -39,7 +41,8 @@ export class SignDocument extends Component {
             const errorMessage = error.message;
             this.setState({
                 showError: true,
-                errorMessage: errorMessage
+                errorMessage: errorMessage,
+                transactionInProgress: false
             })
         }
 
@@ -48,7 +51,8 @@ export class SignDocument extends Component {
                 await this.documentSignerService.signDocument(this.state.documentHash);
 
                 this.setState({
-                    documentActionSuccessful: true
+                    documentActionSuccessful: true,
+                    transactionInProgress: false
                 })
 
                 setInterval(() => {
@@ -61,14 +65,16 @@ export class SignDocument extends Component {
                 const errorMessage = error.message;
                 this.setState({
                     showError: true,
-                    errorMessage: errorMessage
+                    errorMessage: errorMessage,
+                    transactionInProgress: false
                 })
             }
         } else {
             const errorMessage = 'Your account is not in signatory list. You are not allowed to sign this document.';
             this.setState({
                 showError: true,
-                errorMessage: errorMessage
+                errorMessage: errorMessage,
+                transactionInProgress: false
             })
         }
     }
@@ -78,7 +84,13 @@ export class SignDocument extends Component {
             <div className="d-flex justify-content-center align-content-center align-items-center flex-column">
                 {this.state.documentActionSuccessful === true ?
                     (<Alert variant={"success"}>
-                        Document signed successfully!
+                        Transaction confirmed! Document signed successfully!
+                    </Alert>) : null
+                }
+                {this.state.transactionInProgress === true ?
+                    (<Alert variant={"success"}>
+                        You successfully initiated a transaction for signing a document!<br />
+                        Confirm the transaction in your wallet and wait to complete.
                     </Alert>) : null
                 }
                 {this.state.showError === true ?

@@ -11,6 +11,7 @@ export class ManageDocument extends Component {
         documentActionSuccessful: false,
         showError: false,
         errorMessage: '',
+        transactionInProgress: false
     };
     documentSignerService = null;
 
@@ -26,8 +27,10 @@ export class ManageDocument extends Component {
 
     addSignatory = async (e) => {
         e.preventDefault();
+
         this.setState({
-            showError: false
+            showError: false,
+            transactionInProgress: true
         })
 
         try {
@@ -42,7 +45,8 @@ export class ManageDocument extends Component {
                 signatoryAddress: '',
                 signatoryName: '',
                 signatoryDescription: '',
-                documentActionSuccessful: true
+                documentActionSuccessful: true,
+                transactionInProgress: false
             })
 
             setInterval(() => {
@@ -55,7 +59,8 @@ export class ManageDocument extends Component {
             const errorMessage = error.message;
             this.setState({
                 showError: true,
-                errorMessage: errorMessage
+                errorMessage: errorMessage,
+                transactionInProgress: false
             })
         }
     }
@@ -65,13 +70,19 @@ export class ManageDocument extends Component {
             <div className="d-flex justify-content-center align-content-center align-items-center flex-column">
                 {this.state.documentActionSuccessful === true ?
                     (<Alert variant={"success"}>
-                        Document action executed successfully!
+                        Transaction confirmed! Signatory added successfully!
                     </Alert>) : null
                 }
                 {this.state.showError === true ?
                     (<Alert variant={"danger"}>
                         <h6>Error occurred while trying to perform action over document.</h6>
                         <p>{this.state.errorMessage}</p>
+                    </Alert>) : null
+                }
+                {this.state.transactionInProgress === true ?
+                    (<Alert variant={"success"}>
+                        You successfully initiated a transaction for adding signatory!<br />
+                        Confirm the transaction in your wallet and wait to complete.
                     </Alert>) : null
                 }
                 <Form className="mt-2">
