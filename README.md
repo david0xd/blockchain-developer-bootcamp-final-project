@@ -75,6 +75,7 @@ _Note: Frontend (client web3) application is tested only in Google Chrome and Mo
 There is no guarantee that it will work properly in other browsers and wallets at the moment._
 
 ## Screencast (walking through the project and use cases)
+[https://www.youtube.com/watch?v=feYC6onUuKM](https://www.youtube.com/watch?v=feYC6onUuKM)
 
 ## Project description
 
